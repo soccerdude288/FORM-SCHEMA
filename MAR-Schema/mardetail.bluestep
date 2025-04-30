@@ -1,0 +1,528 @@
+SOURCE = "MAR Detail [MANAGE]"; //name of field formula [f], formula [F], end point [E], or merge [M]
+
+// Set unit to resident unit
+community.setCurrentUnit(cur.System.id);
+comm = community.get(0);
+isManage   = comm.commInfo.System.isLayout("MANAGE");
+htmlCode = '';
+
+if(isManage != true){
+  htmlCode = cur.System.lookupMergeReport("id", "marDetailHQ").getMergeTag();
+  
+} else {
+  // Variables
+schedTime = getUserData(false).get('schedTime');
+selMarReport = getUserData().get('marReport').parseInteger();
+painLevel = comm.med.painLevel;
+trackPainOnScheduled = comm.med.painLevelSched == true;
+commInterventions    = comm.med.interventions == true;
+showMARPrepSig       = comm.med.showMARPrepSig == true;
+
+medIdParam = getUserData(false).get('medId');
+log("medIdParam Before: " + medIdParam)
+if (nullOrEmpty(medIdParam)) {
+   log("getUserData().get('medId')" + getUserData().get('medId'));
+   log("getUserData().getAll('medId')" + getUserData().getAll('medId'));
+   medIdParam = getUserData().getAll('medId').join(",");
+}
+log("medIdParam After: " + medIdParam)
+
+z = comm.commInfo.timeZone.selectedExportValue;
+if (z.nullOrEmpty()) { z = "US/Mountain"; }
+
+today = curDate(z);
+date = today.format("MMMMM d, yyyy");
+
+/*
+// find the ids for exception options
+marMed = allMar.getById(medIdParam);
+otherExcepId = marMed.adminEx.optionsByExport["O"].id;
+optLowVitalsId = marMed.adminEx.optionsByExport["LV"].id;
+optSpitOutId = marMed.adminEx.optionsByExport["SP"].id;
+optDroppedId = marMed.adminEx.optionsByExport["D"].id;
+*/
+
+// ============================================
+// ============ TO BE ADMINISTERED ============
+// ============================================
+//CSS
+css =
+``
+<style type="text/css"><!--
+.pointer {
+   cursor:pointer;
+}
+.cItem.marEntry {
+    overflow: initial;
+}
+--></style>
+``
+
+headFormat = getFormatter( //0 = time, 1 = date
+``
+<div class="cHead cHeadSm cPadTop clearfix">
+   <div><strong>{0}</strong> Medications</div>
+   <div class="hidden-xs">&nbsp;for {1}</div>
+</div>
+``);
+
+script = ''
+
+//0 = sig, 1 = med, 2 = medLeft, 3 = medRight, 4 = prnMessage, 5 = inst, 6 = prnFlags, 7 = additional, 8 = adminTime, 9 = note, 10 = excep, 11 = reorder, 12 = medClass, 13 = medIcons, 14 = medClassExportVal, 15 = MAR Body Location
+medFormat = getFormatter(``<div class="cItem cMar marEntry{6}">
+   <div class="row">
+      <div class="cMedSig col-sm-2">
+         {0}
+         <div class="cMedIcons">{13}</div>
+         <div class="groupedRow"></div>
+      </div>
+      <div class="col-sm-5">
+         <div class="cMedName"><span class="marMedName cMedName" style="display:flex; align-items:center;">{1}{12}{17}</span>{16}</div>
+         <div class="row">
+            <div class="col-sm-6">
+               {2}
+            </div>
+            <div class="col-sm-6">
+               {3}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-4">
+         {4}{5}
+      </div>
+      <div class="col-sm-1">
+         <div class="cHeadLinks">
+            <div class="cLink">
+               <div class="cBtn pointer">
+                  <div class="cBtnIcon"><img class="svg size16" src="/images/icons/list.svg"></div>
+                  <div class="cBtnName hidden-md hidden-sm">Options</div>
+                  <b class="caret"></b>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row notesExceptions">
+      <div class="cMedNotes col-sm-3 col-sm-offset-2">
+        <div><strong>Notes:</strong></div>
+         {9}
+      </div>
+      <div class="cMedExc col-sm-3">
+        <div><strong>Exceptions:</strong></div>
+         {10}
+      </div>
+      <div class="cMedTime col-sm-3">
+        <div><strong>Administration Time:</strong></div>
+         {8}
+      </div>
+      <div class="cMedReorder col-sm-6 col-sm-offset-2 opsBtns">
+         {11}
+      </div>
+      <div class="cMedExcepQty col-sm-3 groupedRow opsBtns">
+      </div>
+   </div>
+   {7}{14}
+   <div>{15}</div></div>``);
+
+painF = getFormatter(``
+<div class="row">
+   <div class="cWarning col-sm-10 col-sm-offset-2">
+      {0}
+   </div>
+</div>
+``); // 0 = prePain
+
+icoFormat = getFormatter(``
+<img class="svg size24 danger" src="/images/icons/{0}.svg" title="{1}">
+``); // 0 = icon, 1 = hover title
+
+medLinkFormat = getFormatter( // 0 = medLink, 1 = med
+``
+<a href="{0}" target="_blank" rel="opener">{1}</a>&nbsp;{2}
+``);
+
+medInfoFormat = getFormatter( // 0 = label, 1 = field
+``
+<div class="cMedDetail">
+   <strong>{0}:</strong>
+   <div>{1}</div>
+</div>
+``);
+
+prnMessageFormat = getFormatter( // 0 = prnField
+``
+<div class="cMedDetail">
+   <div class="cWarning">This PRN can be given again on {0,datetime,MM/dd/yyyy 'at' h:mm a}</div>
+</div>
+``);
+
+preSigFormat = getFormatter( // 0 = addItems
+``
+<div class="row vitalsBlock">
+   <div class="col-sm-10 col-sm-offset-2 form-horizontal"><div class="row">{0}</div></div>
+</div>
+``);
+
+vitalsFormat = getFormatter( // 0 = label, 1 = field
+``
+   <div class="col-sm-4 nobr" style="float:left; padding-left:30px; font-weight: bold">
+      <span class="control-label">{0}:</span> {1}
+   </div>
+``);
+
+
+
+interF = getFormatter(``
+<div class="row {3}">
+   <div  style="vertical-align: top;" class="col-sm-10 col-sm-offset-2">
+     <div class="cMedDetail">
+       <div  style="display: inline-block;  vertical-align: top;" ><label>{0}</label>:{1}</div>
+       <div style="display: inline-block;  ">{2}</div>
+     </div>
+   </div>
+</div>
+``); // 0 = prePain
+
+
+
+// ============================================
+// ============ ADMINISTERED TODAY ============
+// ============================================
+
+// Administered Medications Format
+adminFormat = getFormatter( // 0 = adminHead, 1 = admin
+``
+<div class="cHead cHeadSm cPadTop">{0}</div>
+<div class="cBox">
+   <table class="table table-condensed">
+      <thead>
+         <tr>
+            <th>Time</th>
+            <th>Medication</th>
+            <th>Admin Time</th>
+            <th>Exceptions</th>
+            <th>Signature</th>
+         </tr>
+      </thead>
+      <tbody>
+         {1}
+      </tbody>
+   </table>
+</div>
+``);
+
+// Administered Table Rows Format
+adminRows = getFormatter( // 0 = time, 1 = med, 2 = adminTime, 3 = excep, 4 = sig
+``
+         <tr>
+            <td>{0}</td>
+            <td>{1}</td>
+            <td>{2}</td>
+            <td>{3}</td>
+            <td>{4}</td>
+         </tr>
+``);
+
+
+
+
+interventionsScript = new String[String];
+
+   mar = cur;
+   funky = mar.System.lookupMergeReport("name", "intakeSelectMAR").getMergeTag();
+   marDateSched = '<div style="font-size: x-small" class="primaryColor-color bold">' + cur.date.format("MM/dd/yyyy") + ' &mdash; ' + cur.schedAdmin.selectedName + '</div>';
+
+   marId = mar.System.id;
+   // Get the med prescribed entry
+   pMed = mar.medRel.selected[0].entry;
+   
+   // Signature and Med
+   
+   prepSig = prepClass = "";
+
+   if(showMARPrepSig){
+      if(mar.prepSig.timestamp != null){
+         prepSig = '<div class="prepSig"><label>Prepared By </label> ' + (String)mar.prepSig + '</div>';
+         prepClass = mar.adminSig.timestamp == null?' primaryColorHigh-background-color ':'';
+      } else if(mar.adminSig.timestamp == null){ // if prepSig is unsigned and MAR is already signed, do not show prepSig
+         prepSig = '<div class="prepSig">' + mar.prepSig.getMergeTag("FI") + '</div>';
+      }
+   }
+   checkSig = mar.adminSig.timestamp != null ? '<strong>Signed By: </strong>' : '';
+   sig = prepSig + checkSig + mar.adminSig.getMergeTag('F');
+   //medUrl = pMed.System.lookupMergeReport("_mergeReport", "prescribed").viewURL + '&_dt=BOOTSTRAPB_BLANK&_dest=/shared/admin/refreshandclose.jsp';
+   medUrl = pMed.System.viewURL + '&_dest=/shared/admin/refreshandclose.jsp';
+   medClass = (pMed.medClass.selectedName == "Standard" ||  nullOrEmpty(pMed.medClass.selectedName)) ? "" : "<span class='cWarning'>Controlled</span>";
+   hidMedClass = ``<span class="medClass" style="display:none">`` + pMed.medClass.selectedExportValue + ``</span>``;
+   med = pMed.medName;
+   medLink = medLinkFormat.format(medUrl, med, funky);
+   isPRN = mar.schedAdmin.selectedExportValue == "PRN";
+   prnFlags = isPRN ? " isPRN" : "";
+
+   showInterventions = mar.interventionsRel.selected.size() > 0;
+   pMedShortId = pMed.System.shortId;
+   
+   interventions.clearSearchAndSort();
+   interventions.addSearch("medId", "CONTAINS", pMedShortId);
+   if(pMed.interventionsReq && commInterventions){
+      log("show Interventions for " + pMed.medName + ": " + showInterventions);
+      if(!showInterventions) showInterventions = interventions.size() > 0;
+   }
+   if(showInterventions){
+       interventions.clearSearchAndSort();
+       for(interIdx, intervention in interventions){
+           if(intervention.medId.indexOf(pMedShortId) < 0){
+              interVal = intervention.System.id
+              interventionsScript[pMedShortId + interVal] = ``$("div.`` + pMedShortId + ``").find("input[value='`` + interVal + ``']").closest('div').remove();``
+           } 
+       }
+   }
+   
+   // Med Info (Dosage, Diagnosis, Anatomy, and PRN Reason)
+   medLeft = medInfoFormat.format('Qty Admin', 
+      '<span class="qtyAdminField">' + mar.qtyAdministered.getMergeTag('IF') + '</span>'
+      + '<i class="noAdminMssg" style="display:none"><font color="red">Not Administered</font> <span class="adminOverride">' + getButtonHTML("Override") + '</span></i>'
+      + '<em><div class="ssCalc" style="display:none"><strong>Sliding Scale Calculation: </strong><span class="ssVal"></span><div class="ssJSON" style="display:none">' + pMed.ssJSON + '</div></div></em>'
+      + '<div style="display:none"><strong>Over Sliding Scale Instructions: </strong><div class="overSSInst" style="display:none">' + escapeJS(pMed.overSSInst) + '</div></div>'
+      + '<div style="display:none"><strong>Under Sliding Scale Instructions: </strong><div class="underSSInst" style="display:none">' + escapeJS(pMed.underSSInst) + '</div></div>')
+
+   /////MAR Body Location/////
+   // Formatting
+   tableF = getFormatter(globalStrings["tableF"]); // 0 = class, 1 = header, 2 = fields
+   tagF = getFormatter(globalStrings["tagF"]); // 0 = tag, 1 = class, 2 = content
+   aF = getFormatter(globalStrings["aF"]); // 0 = url, 1 = class, 2 = label
+   
+   tableClass = "table table-condensed table-striped";
+   
+   // Table Headers
+   class = "columnHeader nobr";
+   heads = tagF.format("td", class, "Signature");
+   heads += tagF.format("td", class, "Location");
+   fieldHeads = tagF.format("tr", "sectionRuleB", heads);
+   
+   // Table Rows
+   // rowsA = new String[Integer];
+   // count = 0;
+   // recentLoc.clearSearchAndSort()   
+   // recentLoc.addSearch("medID", "=", mar.medID)
+   // for(j, loc in recentLoc){
+   //    if(count < 3){
+   //      count++
+   //       url = loc.System.viewURL;
+   //       link = aF.format(url, "", loc.medName);
+   //       items = tagF.format("td", "", loc.adminSig);
+   //       items += tagF.format("td", "", loc.injLoc.selectedNames.join());
+   //       rowsA[j++] = tagF.format("tr", "", items);
+   //    }
+   // }
+   // locOut = tableF.format(tableClass, fieldHeads, rowsA.join(""));
+ 
+   marBodyLoc = ''
+   // showInj = false
+   // if(comm.med.injMAR == true && (mar.rtAdminNew.selectedExportValue == 'SQ' || mar.rtAdminNew.selectedExportValue == 'IM' || mar.rtAdminNew.selectedExportValue == 'T' || mar.rtAdminNew.selectedName == 'Transdermal')){
+   //    showInj = true
+   //    if(mar.adminSig.timestamp == null){
+   //       marBodyLoc =  'Body Location:<br>' + mar.System.lookupMergeReport('id', 'marBodyLoc').getMergeTag()
+   //       marBodyLoc += '<div id="divInjectionLocation" style="display: none;">' + mar.injLoc.getMergeTag('FI') + '</div>'
+   //       marBodyLoc += '<br>Recent Locations:<br>' + locOut
+   //    }else {
+   //       marBodyLoc = mar.injLoc.getMergeTag('L') + ': ' + locOut
+   //    }
+   // }
+
+
+   timing = mar.timingRel.selected[0].entry;
+   qtyUnit = timing.qty + ' ' + timing.qtyUnit + ' ' + '(' + mar.dosage + ')';
+   medRight = medInfoFormat.format('Qty/Unit', qtyUnit);
+   diag = !nullOrEmpty(mar.marDiag) ? mar.marDiag.getMergeTag('') : '[No Data]';
+   medRight += medInfoFormat.format('Diagnosis', diag);
+   //anatomy += !nullOrEmpty(mar.anatomy) ? medInfoFormat.format('Anatomy', mar.anatomy.getMergeTag('')) : '';
+   //prnReason += !nullOrEmpty(mar.prnReason) ? medInfoFormat.format('PRN Reason', mar.prnReason.getMergeTag('')) : '';
+   
+   
+   // PRN Message
+   prnMessage = '';
+   if (isPRN && mar.adminSig.timestamp == null) {
+      allPRNs.clearSearchAndSort();
+      allPRNs.addSearch("medID", "=", mar.medID);
+      prn = allPRNs[0];
+      interval = pMed.prnInterval;
+      if (prn.adminTime != null && interval != null) {
+         millis = (Integer)(interval * 3600000);
+         nextAllowedTime = prn.adminTime + millis.toDateDiff()
+         if (nextAllowedTime > curDateTime(z)) {
+            prnMessage = prnMessageFormat.format(nextAllowedTime);
+            if (comm.med.lockPRN && nextAllowedTime > curDateTime(z)){
+               sig = "";
+               prnFlags += " prnLock";
+            } 
+         }
+      }
+   } else if(mar.adminSig.timestamp == null && cur.date > curDate(z)){
+      sig = '<div class="marDate">MAR for <span style="font-weight:bold; ">' + mar.date + '</span><br>'
+               + '<div style="cursor: pointer;" class="btn btn-default toggleSigShow ">Click to enable signing future MAR</div>'
+               + '<div class="sigDiv" style="display:none;">' + mar.adminSig.getMergeTag("FI") + '</div></div>'
+      jsFutureMAR =  ``
+      <div class="jsContainer"><script type="text/javascript">
+
+         $(".toggleSigShow").on("click", function() {
+            $(this).closest(".marDate").find('.sigDiv').toggle();
+            $(this).closest(".marDate").find('.toggleSigShow').toggle();
+         });
+      </script></div>``
+      //jsFutureMAR = "";
+      putContent("jsFutureMAR", jsFutureMAR);
+   }
+   
+   // Instructions
+   inst = medInfoFormat.format('Instructions', mar.comments.getMergeTag(''));
+   
+medNotes = pMed.medNotes
+svgF = getFormatter(globalStrings["svgF"]); // 0 = size (lead with space), 1 = color(s) (lead with space), 2 = svg
+popoverImg = svgF.format(" size32", " caution ", "circleRx");
+popover = ''
+if(medNotes.nullOrEmpty() != true){
+  popover = '<div style="cursor:pointer" type="button" class="cBtnIcon" data-toggle="popover" title="Medication Notes" data-content="' + medNotes + '">' + popoverImg + '</div>'
+}
+
+
+popoverScript = scriptTag(``
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+$(document).on('click', function (e) {
+  $('[data-toggle="popover"],[data-original-title]').each(function () {
+    if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+      (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false // fix for BS 3.3.6
+    }
+  });
+});
+
+``)
+
+  putContent("rxPopoverScript", popoverScript);
+   // Admin Time, Exceptions and Notes, Reorder
+   adminTime = mar.adminTime.getMergeTag('F');        
+   excep = mar.adminExRel.getMergeTag('F');
+   note = mar.note.getMergeTag('FI');
+   lastReorder = ''
+ 
+  reorder =  (comm.med.orderMeds || isPRN ) ?  pMed.fillOrderSig.getMergeTag("FI") + lastReorder    : ""
+   
+   // ADDITONAL ROWS
+   preSigRows = new String[Integer];
+   preSigData = false;
+   medIcons = '';
+   additional = '';
+   
+   // Vitals
+   for (k, v in pMed.reqVitals.selectedExportValues) {
+      preSigData = true;
+      
+      if (v == "BP") {
+         preSigRows[k] = vitalsFormat.format("BP", mar.bps.getMergeTag("IF") + ' / ' + mar.bpd.getMergeTag("F"));
+         medIcons += icoFormat.format("heart", "Blood Pressure");
+      } else if (v == "HR") {
+         preSigRows[k] = vitalsFormat.format("Heart Rate", mar.heartRate.getMergeTag("FI"));
+         medIcons += icoFormat.format("clipEkg", "Pulse");
+      } else if (v == "TEMP") {
+         preSigRows[k] = vitalsFormat.format("Temp", mar.temp.getMergeTag("FI"));
+         medIcons += icoFormat.format("thermometer", "Temperature");
+      } else if (v == "RESP") {
+         preSigRows[k] = vitalsFormat.format("Resp", mar.respRate.getMergeTag("FI"));
+         medIcons += icoFormat.format("lungs", "Respiratory");
+      } else if (v == "GLUCO") {
+         preSigRows[k] = vitalsFormat.format("Glucocheck", mar.glucose.getMergeTag("FI"));
+         medIcons += icoFormat.format("drop", "Glucocheck");
+      } else if (v == "WEIGHT") {
+         preSigRows[k] = vitalsFormat.format("Weight", mar.weight.getMergeTag("FI"));
+         medIcons += icoFormat.format("scale", "Weight");
+      } else if (v == "O2SATS") {
+         preSigRows[k] = vitalsFormat.format("O2 Sats", mar.oxygen.getMergeTag("FI"));
+         medIcons += icoFormat.format("oxygen", "SpO2");
+      }
+      if (preSigRows.size() == 3) {
+         additional += preSigFormat.format(preSigRows.join(""));
+         preSigRows = new String[Integer];
+      }
+   }
+   
+   // Pain
+   if (painLevel && mar.drugCategories.optionsByExport["pain"].selected && (mar.schedAdmin.selectedExportValue == "PRN" || trackPainOnScheduled)){
+      if(cur.adminTime == null){
+         additional += painF.format(medInfoFormat.format(mar.prePain.getMergeTag("L"), mar.prePain.getMergeTag("FI")));
+      } else if(cur.adminTime != null){   
+         additional += painF.format(medInfoFormat.format(mar.prePain.getMergeTag("L"), mar.prePain));
+         additional += painF.format(medInfoFormat.format(mar.postPain.getMergeTag("L"), mar.postPain.getMergeTag("FI")));
+      }
+   }
+
+   followUp = "";
+   doFollowUp = pMed.prnFollow.selectedExportValue != "NONE"
+   if (doFollowUp && (cur.schedAdmin.selectedExportValue == "PRN" || pMed.medEffect == true) && cur.adminTime != null) {
+      additional += painF.format(cur.effective.getMergeTag("F"));
+      additional += painF.format(cur.prnSig.getMergeTag("F"));
+      // pain = painF.format(painItems);
+      // painSig = painItemF.format(cur.prnSig.getMergeTag("F"));
+      // followUp = painF.format(painSig);
+   }
+
+   // Interventions
+   if(showInterventions){
+      additional += interF.format(mar.interventionsRel.getMergeTag("L"), mar.interventionsRel.getMergeTag("I"), mar.interventionsRel.getMergeTag("F"), pMedShortId);
+   }
+
+   // Additional Info
+   if (preSigRows.size() > 0) additional += preSigFormat.format(preSigRows.join(""));
+   
+   dest = "&_dt=s&_dest=/shared/admin/saveandclose.jsp" 
+      + '&_medId=' + pMed.System.id
+      + '&_marId=' + marId 
+      + '&_medName=' + encodeURI(med) 
+      + '&_rx=' + pMed.rxNumber;
+   destUrl = medDest.System.lookupMergeReport("id", "medDestructWrapper").newEntryURL + dest;
+   destButton = getButtonHTML("Lost Med/Destroy Med", "true");
+   reorder += '<span class="medDestruct"><a href="javascript:doPopup(\'' + destUrl + '\', winAttribs(400,800,1,1,1))" target="_blank" rel="opener">' + destButton +'</a></span>';
+   
+   
+   //0 = sig, 1 = med, 2 = medLeft, 3 = medRight, 4 = prnMessage, 5 = inst, 6 = prnFlags, 7 = additional, 8 = adminTime, 9 = note, 10 = excep, 11 = reorder, 12 = medClass, 13 = medIcons, 14 = medClassExportVal, 15 = MAR Body Location, 16 = MAR Date/Scheduled Time, 17 = Medication Notes Popover
+
+   // Write Code
+   medList = medFormat.format(sig, 
+                              medLink, 
+                              medLeft, 
+                              medRight, 
+                              prnMessage, 
+                              inst, 
+                              prnFlags + prepClass, 
+                              additional, 
+                              adminTime, 
+                              note, 
+                              excep, 
+                              reorder, 
+                              medClass, 
+                              medIcons, 
+                              hidMedClass, 
+                              marBodyLoc,
+                              marDateSched, 
+                              popover);
+   marOut = medList;  
+   
+
+putContent("marCSS", css);
+
+htmlParts = new String[Integer];
+htmlCount = 0;
+//htmlParts[htmlCount++] = css;
+      // Format Page
+      htmlParts[htmlCount++] = marOut;
+
+
+htmlCode = marOut;//htmlParts.join("");
+
+
+interScript = interventionsScript.join(``
+``);
+putContent("interventionsScript" + pMedShortId, scriptTag(interScript));
+//if(!nullOrEmpty(interScript)) htmlCode += scriptTag(interScript);
+}

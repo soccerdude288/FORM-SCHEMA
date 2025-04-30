@@ -1,0 +1,108 @@
+query ObjectData($id: String!) {
+  remoteObject(id: $id) {
+    ... on RelateForm {
+      id
+      allFields {
+        id
+        columnName
+        columnFieldDataType
+        ... on RelateAbstractDateField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateBooleanField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateMemoField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateMultiSelectField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateNumberField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateTextField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateTimeField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateSingleSelectField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateSignatureField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateDateField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateDateTimeField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateMultiSelectCheckBoxesField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateMultiSelectListBoxField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelatePlainTextField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelatePlainTextMemoField {
+          id
+          formId
+          styleClass
+        }
+        ... on RelateRadioButtonField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateSingleSelectDropDownField {
+          id
+          formulaId
+          styleClass
+        }
+        ... on RelateSingleSelectRadioButtonsField {
+          id
+          formulaId
+          styleClass
+        }
+      }
+    }
+  }
+}
+
+
+
+{
+"id":  "1000001___1115023"
+}

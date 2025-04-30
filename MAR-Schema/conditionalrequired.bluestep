@@ -1,0 +1,235 @@
+comm = communities.get(0);
+
+medClasses = marSigScript = "";
+if (comm.setup.count == true) medClasses = comm.setup.medCount.selectedExportValues.join("|");
+if (nullOrEmpty(medClasses)) medClasses = "medClasses";
+
+
+if(comm.setup.showMARPrepSig == true){
+   marSigScript = ``
+   let sigChecked = 
+   $('.marSig').each(function() {
+      let isChecked = $(this).is(":checked");
+      if(isChecked != true){
+         $(this).closest('label').addClass('marSigStyle')
+      } else {
+         $(this).closest('label').removeClass('marSigStyle')
+      }
+      
+   });
+``
+}
+
+exceptions = newJSONObject();
+for (i, ex in comm.ex) {
+   exceptions.put(
+      ex.System.id, 
+      newJSONObject()
+         .put("note", ex.noteReq)
+         .put("vitals", ex.vitalsReq)
+         .put("destruct", ex.medDestruct)
+   );
+}
+/**************
+Classes and elements used by the script:
+    marEntry        Main block for entire mar entry (to find all other elements inside)
+    isPRN           Flag on main block for entire mar entry (indicates that the current entry is PRN)
+    prnLock         Flag on main block for entire mar entry (indicates that a PRN MAR is locked)
+    marSig          The signature field
+    vitalsBlock     Identifies the block element containing all vitals fields. (to make all contained fields required/optional)
+    marNote         The note field
+    adminExRel      The admin exception relationship field
+    adminTime       The admin time field
+    qtyAdminField   The block surrounding the quantity administered field
+    noAdminMssg     The message indicating the med wasn't administered (to show/hide) and containing the override button <img> (to click)
+    notesExceptions The block surraounding all optional fields (to show/hide)
+    cMedExc         The block surrounding the medication exception field (to show/hide)
+    cMedTime        The block surrounding the administration time (to show/hide)
+    opsBtns         The block surrounding the order-med and destroy-med buttons (to show hide)
+    medDestruct     The block surrounding the link (<a> tag) to open med destruction (to be clicked via script)
+    cBtn            The element(s) that shows/hides the optional fields
+    prnFollowUp     The block surrounding the PRN follow-up fields (optional, fields must all be filled out together)
+***************/
+script = scriptTag(``
+_SR_.onLoad(function() {
+   `` + marSigScript + ``
+   var exceptions = `` + exceptions + ``;
+   $(".marEntry").each(function() {
+      var entry = $(this), isPRN = entry.is(".isPRN");
+      var mar = {
+         entry: entry,
+         sig: entry.find(".marSig"),
+         vitals: entry.find(".vitalsBlock :input"),
+         note: entry.find(".marNote"),
+         ex: entry.find(".adminExRel"),
+         adminTime: entry.find(".adminTime"),
+         interventionsRel: entry.find(".interventionsRel"),
+         prn: isPRN,
+         prnLock: entry.is(".prnLock"),
+         prnFollowUp: entry.find(".prnFollowUp :input"),
+         qtyAdmin: entry.find(".qtyAdministered"),
+         exAttr: function() {
+            var val = this.ex.val();
+            if (val) return exceptions[val];
+            return { vitals: true, note: false, destruct: false, interventionsRel: true };
+         },
+         signed: function() {
+            return !this.prnLock && (this.sig.length == 0 || this.sig.is(":checked"));
+         },
+         setReq: function(ele, req) {
+            this[ele].each(function() {
+               var e = getElementObj(this.name);
+               e.setRequired(req);
+               if (!req) e.validate();
+            });
+         },
+         reqAll: function() {
+            var t = this;
+            t.setReq("note", t.prn && t.signed() || t.exAttr().note);
+            t.setReq("vitals", t.signed() && (t.exAttr().vitals || t.adminTime.val()));
+            t.setReq("interventionsRel", t.signed() && (t.exAttr().interventionsRel || t.adminTime.val()));
+            t.setReq("qtyAdmin", t.signed() && t.entry.find(".medClass").html().match(/`` + medClasses + ``/gi) != null);
+            if (!t.ex.val() || t.adminTime.val()) {
+               t.entry.find(".qtyAdminField").show();
+               t.entry.find(".noAdminMssg").hide();
+            } else {
+               t.entry.find(".qtyAdminField").hide();
+               t.entry.find(".noAdminMssg").show();
+            }
+         },
+         showOps: function(show) {
+            if (typeof show != "boolean") show = !mar.ops;
+            if (!show) {
+               var vals = "";
+               mar.showOps$.find(":input").each(function() {
+                  val = getValue(this.name);
+                  vals += val == null ? "" : val;
+               });
+               if (vals > "") {
+                  show = true;
+               } else {
+                  mar.showOps$.hide();
+               }
+            }
+            if (show) mar.showOps$.show();
+            mar.ops = show;
+         },
+         ops: false,
+         showOps$: isPRN 
+                  ? entry.find(".cMedExc").add(entry.find(".cMedTime")).add(entry.find(".opsBtns")) 
+                  : entry.find(".notesExceptions"),
+         followUp: function() {
+            var vals = "";
+            mar.prnFollowUp.each(function() { vals += get$(this).get(); });
+            var req = vals > "";
+            mar.prnFollowUp.each(function() {
+               var tName = $(this).attr("name"), pos = tName.indexOf(".userKeyStr");
+               if (pos != -1) tName = tName.substring(0, pos);
+               var t$ = getElementObj(tName);
+               t$.setRequired(req);
+               if (!req) t$.validate();
+            })
+         }
+      };
+      mar.sig.add(mar.adminTime).on("change", function() { mar.reqAll(); });
+      mar.ex.on("change", function() {
+         mar.reqAll();
+         if (mar.exAttr().destruct) entry.find(".medDestruct a").trigger("click");
+      });
+      mar.reqAll();
+      entry.find(".cBtn").on("click", mar.showOps);
+      mar.showOps(false);
+      mar.note.attr("placeholder", "Enter Notes...");
+      mar.adminTime.attr("placeholder", "Admin Time...");
+      mar.ex.children("option:first-child").text("Select Exception...");
+      mar.prnFollowUp.on("click", mar.followUp);
+      entry.find(".adminOverride").on("click", function() {
+         mar.adminTime.val("TIMESTAMP").trigger("change");
+      });
+  });
+  document.querySelectorAll(".marGlucose").forEach(function(e){
+     e.addEventListener("focusout", function({target: el}){
+         const field = el.closest('.marEntry').querySelector(".ssCalc");
+         const json = field.querySelector(".ssJSON").innerText;
+         if (json && json !== '{}') {
+            const value = field.querySelector(".ssVal");
+            const underSSInst = field.parentElement.parentElement.querySelector(".underSSInst").innerText;
+            const overSSInst = field.parentElement.parentElement.querySelector(".overSSInst").innerText;
+            const dose = getSlidingScale(el.value, json, underSSInst, overSSInst);
+            value.innerText = dose || dose === 0 ? dose : "Glucose value is out of range. Please see physician's instructions.";
+            field.style.display = null;
+         }
+      });
+  });
+
+  function getSlidingScale(value, json, underSSInst, overSSInst) {
+      const jsonStr = json || '{}'
+      const {start: glucoseStart = [], doses: glucoseDoses = []} = JSON.parse(jsonStr);
+      let isUnder = false, isOver = false;
+      value = Number(value);
+
+      for (let i = 0; i < glucoseStart.length; i++) {
+         isUnder = value < glucoseStart[i] + (i === 0 ? 0 : 1);
+         if (i + 1 < glucoseStart.length) isOver = value > glucoseStart[i+1];
+         if (!isUnder && !isOver) return glucoseDoses[i];
+      }
+
+      let warningText = "Glucose value is out of range. Please see physician's instructions.";
+      warningText = isUnder ? underSSInst : warningText;
+      warningText = isOver ? overSSInst : warningText;
+      if(glucoseStart.length){
+        if (Swal) {
+           alertScript = Swal.fire({type: 'warning', title: 'Warning', text: warningText});
+        } else {
+           alertScript = alert(warningText);;
+        }
+      }
+   }
+
+   $('input.prepSig').each(function() {
+    // $(this).closest('label').addClass('btn-xs');
+     $(this).change(function() {
+    let mEntry = $(this).closest('div.marEntry')
+     if(this.checked == true){
+         $(mEntry).addClass('primaryColorHigh-background-color')
+         console.log("checked");
+     } else if(this.checked != true){
+         $(mEntry).removeClass('primaryColorHigh-background-color')
+         console.log("unchecked");
+     }
+
+     });
+   });
+});
+``) + ``
+<style>
+.marMedName a {
+   color: rgb(0, 66, 141);
+   font-size: 16px;
+   font-weight: bold;
+}
+.marEntry .formLabel {
+   font-weight: bold;
+}
+.marControl {
+   padding: 0 12px;
+   color: #C03B2B;
+   font-size: 16px;
+   font-weight: bold;
+}
+.medDestruct {
+   display: none;
+}
+.prepSig > label {
+   font-weight: bold;
+   color:  #0000aa !important;
+}
+.marSigStyle {
+   font-weight: bold;
+   color:  #00aa00 !important;
+}
+</style>``;
+
+
+putContent("MAR_Conditional_Script", script)
+out = "";
