@@ -105,34 +105,34 @@ BlueStep provides several mechanisms for automating processes, customizing displ
 ## 6. Key Relationships Summary
 
 ```mermaid
-graph TD
-    subgraph Data Hierarchy
-        A[Record (Type and Category)] --> B(Entry);  /* Changed '+' to 'and' */
-        B --> C{Form};
-        C --> D[Field];
+flowchart TD
+    subgraph "Data Hierarchy"
+        A["Record (Type and Category)"] --> B("Entry")
+        B --> C{"Form"}
+        C --> D["Field"]
     end
 
-    subgraph Configuration & Application
-        C -- Applied to --> A;
-        Relate(Relate Configuration) -- Defines --> A;
-        Relate -- Defines --> C;
-        Relate -- Defines --> D;
-        Relate -- Defines --> E[Query/Report];
-        Relate -- Defines --> F[Layout (Generic/Merge Report)];
-        Relate -- Defines --> G[Formula];
-        Relate -- Defines --> H[Endpoint];
+    subgraph "Configuration & Application"
+        C -- "Applied to" --> A
+        Relate("Relate Configuration") -- "Defines" --> A
+        Relate -- "Defines" --> C
+        Relate -- "Defines" --> D
+        Relate -- "Defines" --> E["Query/Report"]
+        Relate -- "Defines" --> F["Layout (Generic/Merge Report)"]
+        Relate -- "Defines" --> G["Formula"]
+        Relate -- "Defines" --> H["Endpoint"]
     end
 
-    subgraph Usage & Triggers
-        E -- Retrieves --> A;
-        F -- Displays/Edits --> B;
-        F -- Uses Merge Tag for --> D;
-        G -- Manipulates --> B;
-        UserAction -- Triggers --> G;
-        Schedule -- Triggers --> G;
-        H -- Triggers --> G;
-        HttpRequest -- Triggers --> H;
-        H -- Accesses/Manipulates --> B;
+    subgraph "Usage & Triggers"
+        E -- "Retrieves" --> A
+        F -- "Displays/Edits" --> B
+        F -- "Uses Merge Tag for" --> D
+        G -- "Manipulates" --> B
+        UserAction -- "Triggers" --> G
+        Schedule -- "Triggers" --> G
+        H -- "Triggers" --> G
+        HttpRequest -- "Triggers" --> H
+        H -- "Accesses/Manipulates" --> B
     end
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -141,7 +141,6 @@ graph TD
     style G fill:#ffc,stroke:#333,stroke-width:2px
     style H fill:#fcc,stroke:#333,stroke-width:2px
 ```
-*(Note: Mermaid syntax appears correct, but external validation may be needed if errors persist).*
 
 ## 7. Example Scenario
 
