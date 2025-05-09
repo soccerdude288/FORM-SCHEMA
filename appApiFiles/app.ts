@@ -37,9 +37,9 @@ const v2 = pathParts[3] === "v2";
 const routerV1 = new Router();
 
 // Registering V1 routes
-routerV1.GET("formVersion/:formId", (p) => {
-  const form = B.find.formEntry(p.formId);
-  return { id: form.id().shortId(), version: form.version() };
+routerV1.GET("formVersion/:entryId", (p) => {
+  const entry = B.find.formEntry(p.entryId);
+  return { id: entry.id().shortId(), version: entry.version() };
 });
 routerV1.GET("properties", () => ({
   "path1": "version" + ["v1", 'v2'], // This might need adjustment if v2 properties differ
@@ -54,8 +54,7 @@ routerV1.GET("res/:resId", (p) => getResidentProfile(p.resId));
 routerV1.GET("res/:resId/mar", (p) => getResidentMars(p.resId));
 routerV1.PUT("res/:resId/mar/:marId", (p) => {
   console.log("V1 Update Mar entry");
-  updateMarEntry(p.resId, p.marId);
-  return {};
+  return updateMarEntry(p.resId, p.marId);
 });
 routerV1.GET("res/:resId/adl", (p) => getResidentAdls(p.resId));
 routerV1.GET("res/:resId/beh", (p) => getResidentBehs(p.resId));
@@ -63,10 +62,9 @@ routerV1.GET("res/:resId/goal", (p) => getResidentGoals(p.resId));
 routerV1.GET("res/:resId/clientTime", (p) => {
   return {}; 
 });
-routerV1.PUT("res/:resId/clientTime", (p) => {
+routerV1.POST("res/:resId/clientTime", (p) => {
   console.log("V1 Create ClientTime entry");
-  createClientTimeEntry(p.resId);
-  return {};
+  return createClientTimeEntry(p.resId);
 });
 
 routerV1.GET("mar", () => getAllMars());
@@ -89,16 +87,16 @@ const routerV2 = new Router();
 
 // Registering example V2 routes
 // For staff, let's return data with an explicit apiVersion field
-routerV2.GET("staff", () => {
-  console.log("V2 API: Handling GET /staff");
-  const staffList = getAllStaff(); // Assuming getAllStaff returns an array
-  return Array.isArray(staffList) ? staffList.map((s: any) => ({ ...s, apiVersion: "v2" })) : { data: staffList, apiVersion: "v2" };
-});
-routerV2.GET("staff/:staffId", (p) => {
-  console.log(`V2 API: Handling GET /staff/${p.staffId}`);
-  const staffProfile = getStaffProfile(p.staffId);
-  return { ...staffProfile, apiVersion: "v2" };
-});
+// routerV2.GET("staff", () => {
+//   console.log("V2 API: Handling GET /staff");
+//   const staffList = getAllStaff(); // Assuming getAllStaff returns an array
+//   return Array.isArray(staffList) ? staffList.map((s: any) => ({ ...s, apiVersion: "v2" })) : { data: staffList, apiVersion: "v2" };
+// });
+// routerV2.GET("staff/:staffId", (p) => {
+//   console.log(`V2 API: Handling GET /staff/${p.staffId}`);
+//   const staffProfile = getStaffProfile(p.staffId);
+//   return { ...staffProfile, apiVersion: "v2" };
+// });
 // Add other V2 routes here. If a route is the same as V1, you can register it
 // on routerV2 and point to the same V1 handler function.
 // For example, if 'res' is unchanged in V2:
@@ -149,10 +147,6 @@ const endDateStr = dateFormat.format(endLocalDateTime);
 const startOnlyDateStr = actualDateFormat.format(startLocalDateTime);
 const endOnlyDateStr = actualDateFormat.format(endLocalDateTime);
 
-
-
-let topLevelCommunity;
-
 // Send response only if an active router was determined AND it hasn't already sent a response
 if (activeRouter && !activeRouter.hasSentResponse()) {
   const responseData = rtn === undefined ? {} : rtn; 
@@ -160,8 +154,3 @@ if (activeRouter && !activeRouter.hasSentResponse()) {
   response.characterEncoding("UTF-8");
   response.out(JSON.stringify(responseData));
 }
-// If activeRouter is null, it means an error (like unsupported version) was already handled
-// by routerV1.throwUnsupportedPath(), which should have sent a response.
-
-// Old helper functions (throwUnsupportedPath, throwBadPathId, throwException, todo, checkNullThrowIfEmpty)
-// are now removed as their logic is incorporated into the Router class or made obsolete.
