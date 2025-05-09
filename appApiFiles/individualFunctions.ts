@@ -1,6 +1,6 @@
 /// <reference path="../../../scriptlibrary" />
 import { StaffObject, StaffProfileObject, ResidentObject, ResidentProfileObject, ResidentMarObject, MarObject, ResidentAdlObject, AdlObject, ResidentBehObject, BehObject, ResidentGoalObject, GoalObject, LocationsObject, ClientObject } from './interfaces'
-import { getMarData } from './payloadFunctions'
+import { getMarData, getIncidentReportData } from './payloadFunctions'
 //const body = JSON.parse(B.net.request.content());
 //declare const residentId;
 //const thisResId = residentId == null ? 0 : residentId;
@@ -41,36 +41,7 @@ export function getResidentProfile(residentId) {
   res.forms.incidentReport.addSearch("dateTime", "<=", B.time.LocalDateTime.now().plusDays(1).format(dateFmtr))
   res.forms.incidentReport.addSearch("dateTime", ">=", B.time.LocalDateTime.now().minusDays(5).format(dateFmtr))
   res.forms.incidentReport.forEach(incident => {
-    const { incType, reportedBy, dateTime, where, whereOther, whoPresent, staffInvolved, behaviorMulti, antecedent, incDesc, checkAllIncDesc, suddenIllness, physicalAppearanceChange, outcome, checkAllOutcome, firstAid, specifyFirstAid,
-      didYouWitnessSeizure, whenDidSeizureHappen, timeLast, beforeSeizure, triggers, patientAbleToTalk, eyesDuringSeizure, noticeableBodyMovements, lossBowelCont, repeatedMovements, recoveryAfter, weakOrNumb, doesPatientRemember, timeUntilResume,
-      physAgroToOthers, physicalAggression, verbalAggression, offensiveBeh, sib, refusalOfPrograms, awol, sexualBeh, isolation, sleeping, obsessiveBeh, preincident, descript, after, facts, adminSig } = incident.fields
-    if (incType.selectedOptions()[0].exportValue() === 'aii') {
-      incidentArr.push({
-        version: incident.version(), id: incident.id().shortId(), incType: incType.selectedOptions()[0].displayName(),
-        reportedBy: reportedBy.val(), dateTime: dateTime.val(), where: where.selectedNames(), whoPresent: whoPresent.selectedNames(),
-        behaviorMulti: behaviorMulti.selectedNames(), antecedent: antecedent.val(), descript: descript.val(), incDescriptionCheck: checkAllIncDesc.selectedNames(),
-        sickness: suddenIllness.selectedNames(), physicalAppearanceChange: physicalAppearanceChange.selectedNames(), outcome: outcome.val(),
-        outcomeCheck: checkAllOutcome.selectedNames(), firstAid: firstAid.val(), firstAidNote: specifyFirstAid.val(), adminSig: adminSig.user()
-      })
-    } else if (incType.selectedOptions()[0].exportValue() === 'seizure') {
-      incidentArr.push({
-        version: incident.version(), id: incident.id().shortId(), incType: incType.selectedOptions()[0].displayName(),
-        reportedBy: reportedBy.val(), dateTime: dateTime.val(), where: where.selectedNames(), whoPresent: whoPresent.selectedNames(),
-        witnessSeizure: didYouWitnessSeizure.val(), seizureDateTime: whenDidSeizureHappen.val(), seizureLength: timeLast.val(), beforeSeizure: beforeSeizure.val(),
-        triggers: triggers.val(), patientTalk: patientAbleToTalk.val(), eyes: eyesDuringSeizure.val(), bodyMovements: noticeableBodyMovements.val(),
-        bowelControl: lossBowelCont.val(), repeatedMovements: repeatedMovements.val(), recovery: recoveryAfter.val(), weakNumb: weakOrNumb.val(), patientRemember: doesPatientRemember.val(),
-        timeUntilFunction: timeUntilResume.val(), behaviorMulti: behaviorMulti.selectedNames(), adminSig: adminSig.user()
-      })
-    } else if (incType.selectedOptions()[0].exportValue() === 'behavior') {
-      incidentArr.push({
-        version: incident.version(), id: incident.id().shortId(), incType: incType.selectedOptions()[0].displayName(),
-        reportedBy: reportedBy.val(), dateTime: dateTime.val(), where: where.selectedNames(), whoPresent: whoPresent.selectedNames(),
-        physAgrotoOthers: physAgroToOthers.selectedNames(), physicalAggression: physicalAggression.selectedNames(), verbalAggression: verbalAggression.selectedNames(), offensiveBeh: offensiveBeh.selectedNames(),
-        sib: sib.selectedNames(), refulaoOfPrograms: refusalOfPrograms.selectedNames(), awol: awol.selectedNames(), sexualBeh: sexualBeh.selectedNames(), isolation: isolation.selectedNames(),
-        sleeping: sleeping.selectedNames(), obsessiveBeh: obsessiveBeh.selectedNames(), preIncident: preincident.val(), description: descript.val(), after: after.val(), facts: facts.val(),
-        behaviorMulti: behaviorMulti.selectedNames(), adminSig: adminSig.user()
-      })
-    }
+    incidentArr.push(getIncidentReportData(incident));
   })
   // let {totalAdls, compAdls}: number = 0
   let totalAdls: number = 0
