@@ -10,6 +10,8 @@ import {
   ConditionOperator,
   RuleType,
   ActionType,
+  RequirementType,
+  VisibilityType,
   FieldOption,
   Validation
 } from './formSchemaInterfaces';
@@ -70,8 +72,8 @@ export class SchemaValidator {
     
     // Check field type-specific requirements
     if ((field.type === FieldType.SINGLE_SELECT || field.type === FieldType.MULTI_SELECT) && 
-        !field.options && !field.dynamicOptions && !field.dynamicOptionsEndpoint) {
-      throw new Error(`Select field ${field.id} must have either options, dynamicOptions, or dynamicOptionsEndpoint`);
+        !field.options && !field.inlineData) {
+      throw new Error(`Select field ${field.id} must have either options or inlineData=true`);
     }
     
     // Validate options if present
@@ -166,7 +168,8 @@ export class SchemaValidator {
       [RuleType.REQUIREMENT]: [ActionType.REQUIRE, ActionType.OPTIONAL],
       [RuleType.VALIDATION]: [ActionType.VALIDATE],
       [RuleType.CALCULATION]: [ActionType.CALCULATE],
-      [RuleType.OPTION_FILTER]: [ActionType.FILTER_OPTIONS]
+      [RuleType.OPTION_FILTER]: [ActionType.FILTER_OPTIONS],
+      [RuleType.DYNAMIC_RULE]: [ActionType.REQUIRE, ActionType.SHOW, ActionType.HIDE]
     };
     
     if (!validActionTypes[ruleType].includes(action.type)) {
@@ -176,6 +179,23 @@ export class SchemaValidator {
     // Additional validations based on action type
     if (action.type === ActionType.CALCULATE && action.value === undefined) {
       throw new Error("CALCULATE action must have a value");
+    }
+    
+    // Validate that VITALS requirement type includes target vital fields
+    if (action.requirementType === RequirementType.VITALS && (!action.targetFields || action.targetFields.length === 0)) {
+      throw new Error("VITALS requirement type must include targetFields");
+    }
+    
+    // For dynamic rules, validate that the property is specified
+    if (ruleType === RuleType.DYNAMIC_RULE && !action.property) {
+      throw new Error("Dynamic rules must specify a property");
+    }
+    
+    // For dynamic visibility rules, validate the visibilityType
+    if (ruleType === RuleType.DYNAMIC_RULE && 
+        (action.type === ActionType.SHOW || action.type === ActionType.HIDE) && 
+        !action.visibilityType) {
+      throw new Error("Dynamic visibility rules must specify a visibilityType");
     }
   }
 }
@@ -265,8 +285,7 @@ export function getMarSchema(): FormSchema {
         type: FieldType.SINGLE_SELECT,
         editable: true,
         required: false,
-        dynamicOptionsEndpoint: "/api/v1/exceptions",
-        dynamicOptionsParam: "residentId"
+        inlineData: true  // Use exceptions from the parent MAR data object
       },
       {
         id: "notes",
@@ -402,10 +421,103 @@ export function getMarSchema(): FormSchema {
         type: FieldType.SIGNATURE,
         editable: true,
         required: false
+      },
+      {
+        id: "prepSig",
+        name: "Prepare Signature",
+        type: FieldType.SIGNATURE,
+        editable: true,
+        required: false
       }
     ],
     rules: [
-      // Rule 1: Exception requires notes
+      // Dynamic Rules for Exceptions with Vitals Requirements
+      {
+        id: "exceptionRequiresVitals",
+        type: RuleType.DYNAMIC_RULE,
+        description: "When an exception with vitalsRequired=true is selected, require vitals",
+        condition: {
+          field: "exceptions", 
+          operator: ConditionOperator.ANY_VALUE
+        },
+        action: {
+          type: ActionType.REQUIRE,
+          target: "bps", // Primary target field, others defined in targetFields
+          property: "vitalsRequired",
+          requirementType: RequirementType.VITALS,
+          targetFields: ["bps", "bpd", "heartRate", "respRate", "temp", "glucose", "weight", "oxygen"]
+        }
+      },
+      
+      // Dynamic Rule for Notes Requirement
+      {
+        id: "exceptionRequiresNotes",
+        type: RuleType.DYNAMIC_RULE,
+        description: "When an exception with noteRequired=true is selected, require notes",
+        condition: {
+          field: "exceptions",
+          operator: ConditionOperator.ANY_VALUE
+        },
+        action: {
+          type: ActionType.REQUIRE,
+          target: "notes",
+          property: "noteRequired",
+          requirementType: RequirementType.NOTES
+        }
+      },
+      
+      // Dynamic Rule for Medication Destruction
+      {
+        id: "exceptionRequiresMedDestruction",
+        type: RuleType.DYNAMIC_RULE,
+        description: "When an exception with medDestruction=true is selected, require medication destruction fields",
+        condition: {
+          field: "exceptions",
+          operator: ConditionOperator.ANY_VALUE
+        },
+        action: {
+          type: ActionType.REQUIRE,
+          target: "signature",
+          property: "medDestruction",
+          requirementType: RequirementType.MED_DESTRUCTION
+        }
+      },
+      
+      // Dynamic Visibility Rule for Prepare Signature field
+      {
+        id: "exceptionShowsPrepSig",
+        type: RuleType.DYNAMIC_RULE,
+        description: "When an exception with medDestruction=true is selected, show prepare signature field",
+        condition: {
+          field: "exceptions",
+          operator: ConditionOperator.ANY_VALUE
+        },
+        action: {
+          type: ActionType.SHOW,
+          target: "prepSig",
+          property: "medDestruction",
+          visibilityType: VisibilityType.CONDITIONAL,
+          dynamicVisibility: true
+        }
+      },
+      
+      // Default hide rule for prepare signature field
+      {
+        id: "hidePrepSigInitially",
+        type: RuleType.VISIBILITY,
+        description: "Hide prepare signature by default",
+        condition: {
+          field: "adminTime",
+          operator: ConditionOperator.IS_EMPTY
+        },
+        action: {
+          type: ActionType.HIDE,
+          target: "prepSig",
+          visibilityType: VisibilityType.STANDARD
+        }
+      },
+      
+      // Legacy Rule 1: Exception requires notes - keeping for compatibility
       {
         id: "exceptionRequiresNote",
         type: RuleType.REQUIREMENT,

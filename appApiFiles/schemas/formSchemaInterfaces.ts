@@ -45,11 +45,12 @@ export enum ConditionOperator {
  * Types of rules
  */
 export enum RuleType {
-  VISIBILITY = "VISIBILITY",    // Show/hide fields
-  REQUIREMENT = "REQUIREMENT",  // Make fields required/optional
-  VALIDATION = "VALIDATION",    // Validate field values
-  CALCULATION = "CALCULATION",  // Calculate values
-  OPTION_FILTER = "OPTION_FILTER" // Filter options in a select field
+  VISIBILITY = "VISIBILITY",      // Show/hide fields
+  REQUIREMENT = "REQUIREMENT",    // Make fields required/optional
+  VALIDATION = "VALIDATION",      // Validate field values
+  CALCULATION = "CALCULATION",    // Calculate values
+  OPTION_FILTER = "OPTION_FILTER", // Filter options in a select field
+  DYNAMIC_RULE = "DYNAMIC_RULE"    // Rule determined by dynamic options
 }
 
 /**
@@ -100,12 +101,45 @@ export interface Condition {
 }
 
 /**
+ * Requirement type for dynamic rules
+ */
+export enum RequirementType {
+  STANDARD = "STANDARD",       // Regular requirement
+  VITALS = "VITALS",           // Require vitals fields
+  NOTES = "NOTES",             // Require notes
+  MED_DESTRUCTION = "MED_DESTRUCTION" // Require medication destruction
+}
+
+/**
+ * Visibility type for dynamic rules
+ */
+export enum VisibilityType {
+  STANDARD = "STANDARD",       // Regular visibility
+  CONDITIONAL = "CONDITIONAL"  // Visibility controlled by a condition
+}
+
+/**
+ * Additional properties for dynamic options fields
+ */
+export interface ExceptionOptionProperties {
+  vitalsRequired?: boolean;      // Whether vitals are required for this exception
+  noteRequired?: boolean;        // Whether notes are required for this exception
+  medDestruction?: boolean;      // Whether medication destruction is required
+}
+
+/**
  * Action to take when rule conditions are met
  */
 export interface Action {
-  type: ActionType;        // What kind of action
-  target: string;          // Field ID this action affects
-  value?: any;             // Optional value for calculations/validations
+  type: ActionType;              // What kind of action
+  target: string;                // Field ID this action affects
+  value?: any;                   // Optional value for calculations/validations
+  requirementType?: RequirementType; // For REQUIRE actions, the type of requirement
+  visibilityType?: VisibilityType;  // For SHOW/HIDE actions, the type of visibility
+  targetFields?: string[];       // For group actions, the list of affected fields
+  sourceOption?: string;         // For option-based rules, the option value that triggers this
+  property?: string;             // For dynamic rules, the property on the option that controls this
+  dynamicVisibility?: boolean;   // For dynamic visibility rules
 }
 
 /**
@@ -117,10 +151,15 @@ export interface Field {
   type: FieldType;               // Field type
   editable: boolean;             // Whether field can be edited
   required: boolean;             // Whether field is required by default
-  options?: FieldOption[];       // For select fields, list of options
-  dynamicOptions?: string;       // For dynamic options, reference to source
-  dynamicOptionsEndpoint?: string; // Endpoint where app can fetch options
-  dynamicOptionsParam?: string;  // Parameter for the dynamic options endpoint
+  
+  // Options configuration
+  options?: FieldOption[];       // For select fields, list of static options
+  
+  // Dynamic options configuration
+  inlineData?: boolean;          // Whether to use inline data from parent request
+  optionProperties?: ExceptionOptionProperties[]; // Additional properties for dynamic options
+  
+  // Validation
   validation?: Validation;       // Validation rules
 }
 
