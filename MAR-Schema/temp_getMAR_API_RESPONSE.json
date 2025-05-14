@@ -1,0 +1,359 @@
+[
+    {
+        "version": "3",
+        "id": "22454688",
+        "date": "05/14/2025",
+        "label": "Asprin",
+        "dosage": "100MG",
+        "schedAdmin": "AM",
+        "instructions": "Administer 1 Tablet (100MG) Oral (PO) at AM, PM",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    },
+    {
+        "version": "3",
+        "id": "22454696",
+        "date": "05/14/2025",
+        "label": "Asprin",
+        "dosage": "100MG",
+        "schedAdmin": "PM",
+        "instructions": "Administer 1 Tablet (100MG) Oral (PO) at AM, PM",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    },
+    {
+        "version": "2",
+        "id": "22455472",
+        "date": "05/14/2025",
+        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
+        "dosage": "10/325mg",
+        "schedAdmin": "PRN",
+        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    },
+    {
+        "version": "3",
+        "id": "22455433",
+        "date": "05/14/2025",
+        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
+        "dosage": "10/325mg",
+        "schedAdmin": "8:00am",
+        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    },
+    {
+        "version": "3",
+        "id": "22455448",
+        "date": "05/14/2025",
+        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
+        "dosage": "10/325mg",
+        "schedAdmin": "12:00pm",
+        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    },
+    {
+        "version": "3",
+        "id": "22455428",
+        "date": "05/14/2025",
+        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
+        "dosage": "10/325mg",
+        "schedAdmin": "4:00pm",
+        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    },
+    {
+        "version": "3",
+        "id": "22455431",
+        "date": "05/14/2025",
+        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
+        "dosage": "10/325mg",
+        "schedAdmin": "8:00pm",
+        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "notes": "",
+        "exceptions": [
+            {
+                "name": "Agressive Behavior",
+                "value": "22452187",
+                "vitalsRequired": true,
+                "noteRequired": true,
+                "medDestruction": true
+            },
+            {
+                "name": "Away",
+                "value": "22084651",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med not available",
+                "value": "21964230",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            },
+            {
+                "name": "Med on hold",
+                "value": "21964210",
+                "vitalsRequired": false,
+                "noteRequired": false,
+                "medDestruction": false
+            },
+            {
+                "name": "Refused",
+                "value": "21964229",
+                "vitalsRequired": false,
+                "noteRequired": true,
+                "medDestruction": false
+            }
+        ],
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null
+    }
+]
