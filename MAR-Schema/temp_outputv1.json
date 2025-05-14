@@ -1,0 +1,452 @@
+{
+  "name": "MAR",
+  "multiEntry": true,
+  "fields": [
+      {
+          "name": "Medication",
+          "editable": false,
+          "fieldId": "medication",
+          "fieldType": "TEXT"
+      },
+      {
+          "name": "Medication Text/URL",
+          "editable": true,
+          "fieldId": "medicationTextUrl",
+          "required": false,
+          "fieldType": "TEXT"
+      },
+      {
+          "name": "Dosage",
+          "editable": true,
+          "fieldId": "dosage",
+          "required": true,
+          "fieldType": "TEXT"
+      },
+      {
+          "name": "Diagnosis",
+          "editable": true,
+          "fieldId": "diagnosis",
+          "required": false,
+          "fieldType": "TEXT"
+      },
+      {
+          "name": "Route of Administration",
+          "editable": true,
+          "fieldId": "routeOfAdmin",
+          "required": true,
+          "fieldType": "SINGLE_SELECT",
+          "options": [
+              {
+                  "name": "Oral",
+                  "exportValue": "PO"
+              },
+              {
+                  "name": "Subcutaneous",
+                  "exportValue": "SQ"
+              },
+              {
+                  "name": "Intramuscular",
+                  "exportValue": "IM"
+              },
+              {
+                  "name": "Transdermal",
+                  "exportValue": "T"
+              }
+          ]
+      },
+      {
+          "name": "Drug Categories",
+          "editable": true,
+          "fieldId": "drugCategories",
+          "required": false,
+          "fieldType": "MULTI_SELECT",
+          "options": [
+              {
+                  "name": "Pain",
+                  "exportValue": "pain"
+              },
+              {
+                  "name": "Controlled",
+                  "exportValue": "controlled"
+              }
+          ]
+      },
+      {
+          "name": "Date/Time Administered",
+          "editable": true,
+          "fieldId": "adminTime",
+          "required": false,
+          "fieldType": "TEXT"
+      },
+      {
+          "name": "Signature",
+          "editable": true,
+          "fieldId": "signature",
+          "fieldType": "SIGNATURE"
+      },
+      {
+          "name": "Exception",
+          "editable": true,
+          "fieldId": "exceptions",
+          "required": false,
+          "fieldType": "SINGLE_SELECT",
+          "options": []
+      },
+      {
+          "name": "Notes",
+          "editable": true,
+          "fieldId": "notes",
+          "required": false,
+          "fieldType": "TEXT"
+      },
+      {
+          "name": "Instructions",
+          "editable": false,
+          "fieldId": "instructions",
+          "fieldType": "MEMO"
+      },
+      {
+          "name": "Blood Pressure Systolic",
+          "editable": true,
+          "fieldId": "bps",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 300
+      },
+      {
+          "name": "Blood Pressure Diastolic",
+          "editable": true,
+          "fieldId": "bpd",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 200
+      },
+      {
+          "name": "Heart Rate",
+          "editable": true,
+          "fieldId": "heartRate",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 300
+      },
+      {
+          "name": "Temperature",
+          "editable": true,
+          "fieldId": "temp",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 120
+      },
+      {
+          "name": "Glucose/Blood sugar",
+          "editable": true,
+          "fieldId": "glucose",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 1000
+      },
+      {
+          "name": "Respiratory Rate",
+          "editable": true,
+          "fieldId": "respRate",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 100
+      },
+      {
+          "name": "Weight",
+          "editable": true,
+          "fieldId": "weight",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 1000
+      },
+      {
+          "name": "O2 Sats",
+          "editable": true,
+          "fieldId": "oxygen",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 100
+      },
+      {
+          "name": "Pre Pain Level",
+          "editable": true,
+          "fieldId": "prePain",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 10
+      },
+      {
+          "name": "Post Pain Level",
+          "editable": true,
+          "fieldId": "postPain",
+          "required": false,
+          "fieldType": "NUMBER",
+          "min": 0,
+          "max": 10
+      },
+      {
+          "name": "Effectiveness",
+          "editable": true,
+          "fieldId": "effective",
+          "fieldType": "SIGNATURE"
+      }
+  ],
+  "rules": [
+      {
+          "ruleId": "exceptionRequiresNote",
+          "description": "When an exception is entered, require a note",
+          "conditions": [
+              {
+                  "operator": "AND",
+                  "conditions": [
+                      {
+                          "field": "exceptions",
+                          "operator": "EQUALS",
+                          "value": "ANY"
+                      }
+                  ]
+              }
+          ],
+          "action": [
+              {
+                  "action": "REQUIRE",
+                  "field": "notes"
+              }
+          ]
+      },
+      {
+          "ruleId": "painMedRequiresPainLevel",
+          "description": "When medication is a pain medication, require pain level",
+          "conditions": [
+              {
+                  "operator": "AND",
+                  "conditions": [
+                      {
+                          "field": "drugCategories",
+                          "operator": "CONTAINS",
+                          "value": "pain"
+                      }
+                  ]
+              }
+          ],
+          "action": [
+              {
+                  "action": "REQUIRE",
+                  "field": "prePain"
+              },
+              {
+                  "action": "REQUIRE",
+                  "field": "postPain"
+              }
+          ]
+      },
+      {
+          "ruleId": "administeredRequiresSignature",
+          "description": "When medication is administered, require signature",
+          "conditions": [
+              {
+                  "operator": "AND",
+                  "conditions": [
+                      {
+                          "field": "adminTime",
+                          "operator": "NOT_EQUALS",
+                          "value": ""
+                      }
+                  ]
+              }
+          ],
+          "action": [
+              {
+                  "action": "REQUIRE",
+                  "field": "signature"
+              }
+          ]
+      },
+      {
+          "ruleId": "prnRequiresEffectiveness",
+          "description": "When PRN medication is administered, require effectiveness signature",
+          "conditions": [
+              {
+                  "operator": "AND",
+                  "conditions": [
+                      {
+                          "field": "adminTime",
+                          "operator": "NOT_EQUALS",
+                          "value": ""
+                      },
+                      {
+                          "field": "drugCategories",
+                          "operator": "CONTAINS",
+                          "value": "pain"
+                      }
+                  ]
+              }
+          ],
+          "action": [
+              {
+                  "action": "REQUIRE",
+                  "field": "effective"
+              }
+          ]
+      }
+  ],
+  "dynamicRequirements": [
+      {
+          "fieldId": "notes",
+          "requiredWhen": [
+              {
+                  "field": "exception",
+                  "operator": "EQUALS",
+                  "value": "R"
+              },
+              {
+                  "field": "exception",
+                  "operator": "EQUALS",
+                  "value": "H"
+              }
+          ]
+      }
+  ],
+  "medicationRules": [
+      {
+          "medicationType": "PRN",
+          "rules": [
+              {
+                  "type": "PRN_INTERVAL",
+                  "configuration": {
+                      "minInterval": 4,
+                      "effectivenessRequired": true
+                  }
+              }
+          ]
+      },
+      {
+          "medicationType": "PAIN",
+          "rules": [
+              {
+                  "type": "PAIN_TRACKING",
+                  "configuration": {
+                      "prePainRequired": true,
+                      "postPainRequired": true,
+                      "interval": 30
+                  }
+              }
+          ]
+      },
+      {
+          "medicationType": "INSULIN",
+          "rules": [
+              {
+                  "type": "GLUCOSE_SCALE",
+                  "configuration": {
+                      "glucoseRequired": true,
+                      "slidingScale": true
+                  }
+              }
+          ]
+      }
+  ],
+  "validationRules": [
+      {
+          "fieldId": "bps",
+          "validators": [
+              {
+                  "type": "RANGE",
+                  "configuration": {
+                      "min": 0,
+                      "max": 300
+                  }
+              }
+          ]
+      },
+      {
+          "fieldId": "bpd",
+          "validators": [
+              {
+                  "type": "RANGE",
+                  "configuration": {
+                      "min": 0,
+                      "max": 200
+                  }
+              }
+          ]
+      },
+      {
+          "fieldId": "heartRate",
+          "validators": [
+              {
+                  "type": "RANGE",
+                  "configuration": {
+                      "min": 0,
+                      "max": 300
+                  }
+              }
+          ]
+      },
+      {
+          "fieldId": "temp",
+          "validators": [
+              {
+                  "type": "RANGE",
+                  "configuration": {
+                      "min": 0,
+                      "max": 120
+                  }
+              }
+          ]
+      }
+  ],
+  "signatureWorkflow": {
+      "steps": [
+          {
+              "type": "PREP",
+              "required": true,
+              "conditions": [
+                  {
+                      "field": "showMARPrepSig",
+                      "operator": "EQUALS",
+                      "value": "true"
+                  }
+              ]
+          },
+          {
+              "type": "ADMIN",
+              "required": true
+          },
+          {
+              "type": "EFFECTIVENESS",
+              "required": false,
+              "conditions": [
+                  {
+                      "field": "medicationType",
+                      "operator": "EQUALS",
+                      "value": "PRN"
+                  }
+              ]
+          }
+      ]
+  },
+  "dynamicRuleSources": [
+      {
+          "sourceField": "exceptions",
+          "ruleType": "REQUIREMENT",
+          "fieldMapping": {
+              "requiredField": "noteReq"
+          },
+          "targetField": "notes",
+          "sourceType": "MULTI",
+          "description": "Exception requirements for notes based on selected exception"
+      }
+  ]
+}

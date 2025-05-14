@@ -1,0 +1,441 @@
+{
+    "name": "MAR",
+    "multiEntry": true,
+    "version": "1.0.0",
+    "fields": [
+        {
+            "id": "medication",
+            "name": "Medication",
+            "type": "TEXT",
+            "editable": false,
+            "required": false
+        },
+        {
+            "id": "medicationTextUrl",
+            "name": "Medication Text/URL",
+            "type": "TEXT",
+            "editable": true,
+            "required": false
+        },
+        {
+            "id": "dosage",
+            "name": "Dosage",
+            "type": "TEXT",
+            "editable": true,
+            "required": true
+        },
+        {
+            "id": "diagnosis",
+            "name": "Diagnosis",
+            "type": "TEXT",
+            "editable": true,
+            "required": false
+        },
+        {
+            "id": "routeOfAdmin",
+            "name": "Route of Administration",
+            "type": "SINGLE_SELECT",
+            "editable": true,
+            "required": true,
+            "options": [
+                {
+                    "name": "Oral",
+                    "value": "PO"
+                },
+                {
+                    "name": "Subcutaneous",
+                    "value": "SQ"
+                },
+                {
+                    "name": "Intramuscular",
+                    "value": "IM"
+                },
+                {
+                    "name": "Transdermal",
+                    "value": "T"
+                }
+            ]
+        },
+        {
+            "id": "drugCategories",
+            "name": "Drug Categories",
+            "type": "MULTI_SELECT",
+            "editable": true,
+            "required": false,
+            "options": [
+                {
+                    "name": "Pain",
+                    "value": "pain"
+                },
+                {
+                    "name": "Controlled",
+                    "value": "controlled"
+                }
+            ]
+        },
+        {
+            "id": "adminTime",
+            "name": "Date/Time Administered",
+            "type": "DATETIME",
+            "editable": true,
+            "required": false
+        },
+        {
+            "id": "signature",
+            "name": "Signature",
+            "type": "SIGNATURE",
+            "editable": true,
+            "required": false
+        },
+        {
+            "id": "exceptions",
+            "name": "Exception",
+            "type": "SINGLE_SELECT",
+            "editable": true,
+            "required": false,
+            "dynamicOptionsEndpoint": "/api/v1/exceptions",
+            "dynamicOptionsParam": "residentId"
+        },
+        {
+            "id": "notes",
+            "name": "Notes",
+            "type": "TEXT",
+            "editable": true,
+            "required": false
+        },
+        {
+            "id": "instructions",
+            "name": "Instructions",
+            "type": "MEMO",
+            "editable": false,
+            "required": false
+        },
+        {
+            "id": "bps",
+            "name": "Blood Pressure Systolic",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 300
+            }
+        },
+        {
+            "id": "bpd",
+            "name": "Blood Pressure Diastolic",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 200
+            }
+        },
+        {
+            "id": "heartRate",
+            "name": "Heart Rate",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 300
+            }
+        },
+        {
+            "id": "temp",
+            "name": "Temperature",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 120
+            }
+        },
+        {
+            "id": "glucose",
+            "name": "Glucose/Blood sugar",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 1000
+            }
+        },
+        {
+            "id": "respRate",
+            "name": "Respiratory Rate",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 100
+            }
+        },
+        {
+            "id": "weight",
+            "name": "Weight",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 1000
+            }
+        },
+        {
+            "id": "oxygen",
+            "name": "O2 Sats",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 100
+            }
+        },
+        {
+            "id": "prePain",
+            "name": "Pre Pain Level",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "id": "postPain",
+            "name": "Post Pain Level",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 10
+            }
+        },
+        {
+            "id": "effective",
+            "name": "Effectiveness",
+            "type": "SIGNATURE",
+            "editable": true,
+            "required": false
+        }
+    ],
+    "rules": [
+        {
+            "id": "exceptionRequiresNote",
+            "type": "REQUIREMENT",
+            "description": "When an exception is entered, require a note",
+            "condition": {
+                "field": "exceptions",
+                "operator": "ANY_VALUE"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "notes"
+            }
+        },
+        {
+            "id": "painMedRequiresPainLevel",
+            "type": "REQUIREMENT",
+            "description": "When medication is a pain medication, require pain level",
+            "condition": {
+                "field": "drugCategories",
+                "operator": "CONTAINS",
+                "value": "pain"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "prePain"
+            }
+        },
+        {
+            "id": "painMedRequiresPostPainLevel",
+            "type": "REQUIREMENT",
+            "description": "When pain medication is administered, require post-pain level",
+            "condition": {
+                "field": "drugCategories",
+                "operator": "CONTAINS",
+                "value": "pain",
+                "combineOperator": "AND",
+                "nextCondition": {
+                    "field": "adminTime",
+                    "operator": "IS_NOT_EMPTY"
+                }
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "postPain"
+            }
+        },
+        {
+            "id": "administeredRequiresSignature",
+            "type": "REQUIREMENT",
+            "description": "When medication is administered, require signature",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "signature"
+            }
+        },
+        {
+            "id": "prnRequiresEffectiveness",
+            "type": "REQUIREMENT",
+            "description": "When PRN medication is administered, require effectiveness signature",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY",
+                "combineOperator": "AND",
+                "nextCondition": {
+                    "field": "drugCategories",
+                    "operator": "CONTAINS",
+                    "value": "pain"
+                }
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "effective"
+            }
+        },
+        {
+            "id": "hideVitalsInitially",
+            "type": "VISIBILITY",
+            "description": "Hide blood pressure fields until needed",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_EMPTY"
+            },
+            "action": {
+                "type": "HIDE",
+                "target": "bps"
+            }
+        },
+        {
+            "id": "hideBPDInitially",
+            "type": "VISIBILITY",
+            "description": "Hide blood pressure diastolic field until needed",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_EMPTY"
+            },
+            "action": {
+                "type": "HIDE",
+                "target": "bpd"
+            }
+        },
+        {
+            "id": "showBPFields",
+            "type": "VISIBILITY",
+            "description": "Show BP fields when admin time is entered",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "SHOW",
+                "target": "bps"
+            }
+        },
+        {
+            "id": "showBPDFields",
+            "type": "VISIBILITY",
+            "description": "Show BP diastolic field when admin time is entered",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "SHOW",
+                "target": "bpd"
+            }
+        },
+        {
+            "id": "hideHeartRateInitially",
+            "type": "VISIBILITY",
+            "description": "Hide heart rate field until needed",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_EMPTY"
+            },
+            "action": {
+                "type": "HIDE",
+                "target": "heartRate"
+            }
+        },
+        {
+            "id": "showHeartRateWhenAdministered",
+            "type": "VISIBILITY",
+            "description": "Show heart rate field when administered",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "SHOW",
+                "target": "heartRate"
+            }
+        },
+        {
+            "id": "hideTempInitially",
+            "type": "VISIBILITY",
+            "description": "Hide temperature field until needed",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_EMPTY"
+            },
+            "action": {
+                "type": "HIDE",
+                "target": "temp"
+            }
+        },
+        {
+            "id": "showTempWhenAdministered",
+            "type": "VISIBILITY",
+            "description": "Show temperature field when administered",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "SHOW",
+                "target": "temp"
+            }
+        },
+        {
+            "id": "hideGlucoseInitially",
+            "type": "VISIBILITY",
+            "description": "Hide glucose field until needed",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_EMPTY"
+            },
+            "action": {
+                "type": "HIDE",
+                "target": "glucose"
+            }
+        },
+        {
+            "id": "showGlucoseWhenAdministered",
+            "type": "VISIBILITY",
+            "description": "Show glucose field when administered",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "SHOW",
+                "target": "glucose"
+            }
+        }
+    ]
+}

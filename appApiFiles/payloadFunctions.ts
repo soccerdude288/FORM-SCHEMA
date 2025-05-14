@@ -39,11 +39,13 @@ export function getOrgData() {
 }
 
 export function getMarData(mar: MEFR_MAR) {
-  const { date, medName, dosage, schedAdmin, comments, note, adminEx, qtyAdministered, adminTime, adminSig, adminExRel } = mar.fields
+  const { date, medName, dosage, schedAdmin, comments, note, adminEx, qtyAdministered, adminTime, adminSig, adminExRel } = mar.fields;
+  const hasException = adminExRel.selected().length > 0;
+  const selectedException = hasException ? adminExRel.selected().get(0).id().shortId() : null;
     return {
       version: mar.version(), id: mar.id().shortId(),
       date: date.val()?.format(B.time.DateTimeFormatter.ofPattern('MM/dd/YYYY')), label: extractAnchorText(medName.val()), dosage: dosage.val(), schedAdmin: schedAdmin.selectedOptions()[0]?.displayName(), instructions: comments.val(),
-      notes: note.val(), exceptions: adminExRel.options().map(e => { computeMarExceptionObject(e) }), selectedException: adminExRel.valOpt().map(t => t.id().shortId()).orElse(null), quantity: qtyAdministered.val(), adminTime: adminTime.val(), signature: adminSig.timeStamp()
+      notes: note.val(), exceptions: adminExRel.options().map(e => { return computeMarExceptionObject(e) }), selectedException, quantity: qtyAdministered.val(), adminTime: adminTime.val(), signature: adminSig.timeStamp()
     };
 }
 
