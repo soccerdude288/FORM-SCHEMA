@@ -12,15 +12,15 @@ import {
 
 export function getAllEvents() {
   const rtn: Array<Object> = []
-  allCalendarEntries.addSearch("eventInfo","staffId", "CONTAINS", "21980135")
-  allCalendarEntries.rememberSearchAndSort()
+  // allCalendarEntries.addSearch("eventInfo","staffId", "CONTAINS", "21980135")
+  // allCalendarEntries.rememberSearchAndSort()
   allCalendarEntries.forEach(calEntry => {
     const { eventType, eventName, locationCommunity, eventLocation, staff, staffId, clients, clientId, startDateTime, endDateTime,
       isRecurring, rrule, duration, recurringEventId, originalStart, deleted, shiftNotes, } = calEntry.forms.eventInfo.fields
-      rtn.push({id: calEntry.forms.eventInfo.id().shortId(), name: eventName.val(), eventType: eventType.val(), eventLocation: eventLocation.val(),
+      rtn.push({id: calEntry.forms.eventInfo.id().shortId(), name: eventName.val(), eventType: eventType.selectedOptions()[0].displayName(), eventLocation: eventLocation.selectedOptions()[0].displayName(),
       start: startDateTime.val(), end: endDateTime.val(), rrule: rrule.val(), duration: duration.val(), recurringEventId: recurringEventId.val(),
-      originalStart: originalStart.val(), deleted: deleted.val(), community: locationCommunity.selected().map(c => c.formRecord().record().id().shortId()), communityId: locationCommunity.id().shortId(),
-      shiftNotes: shiftNotes.val(), staff: staff.val(), staffId: staffId.val(), clients: clients.val() })
+      originalStart: originalStart.val(), deleted: deleted.val(), community: locationCommunity.selected()[0].id().shortId(), communityId: locationCommunity.id().shortId(),
+      shiftNotes: shiftNotes.val(), staff: staff.selected().map(staff => staff.recordName()), staffId: staffId.val(), clients: clients.selected().map(client => client.recordName()) })
   })
   return rtn
 }
@@ -38,15 +38,51 @@ export function getOrgData() {
   return rtn
 }
 
+// TODO
+// Sliding Scale Instructions concat into instructions (see mar detail)
+
 export function getMarData(mar: MEFR_MAR) {
-  const { date, medName, dosage, schedAdmin, comments, note, adminEx, qtyAdministered, adminTime, adminSig, adminExRel } = mar.fields;
+  const { date, medName, dosage, schedAdmin, comments, note, 
+    adminEx, qtyAdministered, adminTime, adminSig, 
+    adminExRel, whatVitals, bp, bpd, bps, heartRate, 
+    oxygen, temp, glucose, respRate, weight, prePain, 
+    postPain, prepSig, medRel, drugCategories } = mar.fields;
   const hasException = adminExRel.selected().length > 0;
   const selectedException = hasException ? adminExRel.selected().get(0).id().shortId() : null;
-    return {
-      version: mar.version(), id: mar.id().shortId(),
-      date: date.val()?.format(B.time.DateTimeFormatter.ofPattern('MM/dd/YYYY')), label: extractAnchorText(medName.val()), dosage: dosage.val(), schedAdmin: schedAdmin.selectedOptions()[0]?.displayName(), instructions: comments.val(),
-      notes: note.val(), exceptions: adminExRel.options().map(e => { return computeMarExceptionObject(e) }), selectedException, quantity: qtyAdministered.val(), adminTime: adminTime.val(), signature: adminSig.timeStamp()
-    };
+  return {
+    version: mar.version(),
+    id: mar.id().shortId(),
+    date: date.val()?.format(B.time.DateTimeFormatter.ofPattern('MM/dd/YYYY')), 
+    label: extractAnchorText(medName.val()), 
+    dosage: dosage.val(), 
+    schedAdmin: schedAdmin.selectedOptions()[0]?.displayName(), 
+    instructions: comments.val(),
+    notes: note.val(), 
+    selectedException, 
+    quantity: qtyAdministered.val(), 
+    adminTime: adminTime.val(), 
+    signature: adminSig.timeStamp(),
+    drugCategories: drugCategories.selectedOptions().map(o => o.exportValue()),
+    dynamicValues: {
+      exceptions: adminExRel.options().map(e => { return computeMarExceptionObject(e) }),
+      whatVitals: whatVitals.selectedOptions().map(o => o.exportValue()),
+      slidingScale: JSON.parse(medRel.selected()[0].entry().formEntry().fields.ssJSON.val())
+    },
+    vitals: {
+      bp: bp.val(),
+      bpd: bpd.val(),
+      bps: bps.val(),
+      heartRate: heartRate.val(),
+      oxygen: oxygen.val(),
+      temp: temp.val(),
+      glucose: glucose.val(),
+      respRate: respRate.val(),
+      weight: weight.val()
+    },
+    prePain: prePain.val(),
+    postPain: postPain.val(),
+    prepSig: prepSig.timeStamp()
+  };
 }
 
 /**

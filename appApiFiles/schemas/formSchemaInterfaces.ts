@@ -151,6 +151,8 @@ export interface Field {
   type: FieldType;               // Field type
   editable: boolean;             // Whether field can be edited
   required: boolean;             // Whether field is required by default
+  defaultValue?: string;          // Default Value
+  visible: boolean;             // Whether field is visible by default
   
   // Options configuration
   options?: FieldOption[];       // For select fields, list of static options

@@ -16,189 +16,7 @@ import {
   Validation
 } from './formSchemaInterfaces';
 
-/**
- * Schema Validator - Utility class to validate schema definitions
- * 
- * This ensures that schemas are structurally correct before being sent to the app
- */
-export class SchemaValidator {
-  /**
-   * Validates a schema for structural integrity
-   * @param schema The schema to validate
-   * @throws Error if the schema is invalid
-   */
-  validateSchema(schema: FormSchema): void {
-    // Check for empty schema
-    if (!schema.name) {
-      throw new Error("Schema must have a name");
-    }
-    
-    if (!schema.fields || schema.fields.length === 0) {
-      throw new Error("Schema must have at least one field");
-    }
-    
-    // Check for duplicate field IDs
-    const fieldIds = schema.fields.map(f => f.id);
-    const uniqueFieldIds = [...new Set(fieldIds)];
-    if (fieldIds.length !== uniqueFieldIds.length) {
-      throw new Error("Schema contains duplicate field IDs");
-    }
-    
-    // Check for duplicate rule IDs
-    if (schema.rules && schema.rules.length > 0) {
-      const ruleIds = schema.rules.map(r => r.id);
-      const uniqueRuleIds = [...new Set(ruleIds)];
-      if (ruleIds.length !== uniqueRuleIds.length) {
-        throw new Error("Schema contains duplicate rule IDs");
-      }
-      
-      // Validate each rule
-      schema.rules.forEach(rule => this.validateRule(rule, fieldIds));
-    }
-    
-    // Validate each field
-    schema.fields.forEach(field => this.validateField(field));
-  }
-  
-  /**
-   * Validates a single field
-   * @param field The field to validate
-   */
-  private validateField(field: Field): void {
-    // Check for required field properties
-    if (!field.id) throw new Error("Field must have an ID");
-    if (!field.name) throw new Error("Field must have a name");
-    if (!field.type) throw new Error("Field must have a type");
-    
-    // Check field type-specific requirements
-    if ((field.type === FieldType.SINGLE_SELECT || field.type === FieldType.MULTI_SELECT) && 
-        !field.options && !field.inlineData) {
-      throw new Error(`Select field ${field.id} must have either options or inlineData=true`);
-    }
-    
-    // Validate options if present
-    if (field.options) {
-      if (field.options.length === 0) {
-        throw new Error(`Field ${field.id} has an empty options array`);
-      }
-      
-      // Check for option values
-      field.options.forEach(option => {
-        if (!option.name) throw new Error(`Option in field ${field.id} is missing a name`);
-        if (!option.value) throw new Error(`Option in field ${field.id} is missing a value`);
-      });
-    }
-    
-    // Validate validation rules if present
-    if (field.validation) {
-      // For number fields with min/max
-      if (field.type === FieldType.NUMBER) {
-        if (field.validation.min !== undefined && field.validation.max !== undefined &&
-            field.validation.min > field.validation.max) {
-          throw new Error(`Field ${field.id} has min > max`);
-        }
-      }
-      
-      // For text fields with pattern
-      if ((field.type === FieldType.TEXT || field.type === FieldType.MEMO) && 
-          field.validation.pattern) {
-        try {
-          new RegExp(field.validation.pattern);
-        } catch (e) {
-          throw new Error(`Field ${field.id} has an invalid regex pattern: ${e.message}`);
-        }
-      }
-    }
-  }
-  
-  /**
-   * Validates a single rule
-   * @param rule The rule to validate
-   * @param fieldIds List of valid field IDs in the schema
-   */
-  private validateRule(rule: Rule, fieldIds: string[]): void {
-    // Check for required rule properties
-    if (!rule.id) throw new Error("Rule must have an ID");
-    if (!rule.type) throw new Error("Rule must have a type");
-    if (!rule.condition) throw new Error("Rule must have a condition");
-    if (!rule.action) throw new Error("Rule must have an action");
-    
-    // Validate condition
-    this.validateCondition(rule.condition, fieldIds);
-    
-    // Validate action
-    this.validateAction(rule.action, rule.type, fieldIds);
-  }
-  
-  /**
-   * Validates a condition
-   * @param condition The condition to validate
-   * @param fieldIds List of valid field IDs in the schema
-   */
-  private validateCondition(condition: Condition, fieldIds: string[]): void {
-    // Check that the field exists
-    if (!fieldIds.includes(condition.field)) {
-      throw new Error(`Condition references non-existent field: ${condition.field}`);
-    }
-    
-    // Validate next condition if present
-    if (condition.nextCondition) {
-      if (!condition.combineOperator) {
-        throw new Error("Condition with nextCondition must have a combineOperator");
-      }
-      this.validateCondition(condition.nextCondition, fieldIds);
-    }
-  }
-  
-  /**
-   * Validates an action
-   * @param action The action to validate
-   * @param ruleType The type of the parent rule
-   * @param fieldIds List of valid field IDs in the schema
-   */
-  private validateAction(action: Action, ruleType: RuleType, fieldIds: string[]): void {
-    // Check that the target field exists
-    if (!fieldIds.includes(action.target)) {
-      throw new Error(`Action targets non-existent field: ${action.target}`);
-    }
-    
-    // Validate action type against rule type
-    const validActionTypes: { [key in RuleType]: ActionType[] } = {
-      [RuleType.VISIBILITY]: [ActionType.SHOW, ActionType.HIDE],
-      [RuleType.REQUIREMENT]: [ActionType.REQUIRE, ActionType.OPTIONAL],
-      [RuleType.VALIDATION]: [ActionType.VALIDATE],
-      [RuleType.CALCULATION]: [ActionType.CALCULATE],
-      [RuleType.OPTION_FILTER]: [ActionType.FILTER_OPTIONS],
-      [RuleType.DYNAMIC_RULE]: [ActionType.REQUIRE, ActionType.SHOW, ActionType.HIDE]
-    };
-    
-    if (!validActionTypes[ruleType].includes(action.type)) {
-      throw new Error(`Action type ${action.type} is not valid for rule type ${ruleType}`);
-    }
-    
-    // Additional validations based on action type
-    if (action.type === ActionType.CALCULATE && action.value === undefined) {
-      throw new Error("CALCULATE action must have a value");
-    }
-    
-    // Validate that VITALS requirement type includes target vital fields
-    if (action.requirementType === RequirementType.VITALS && (!action.targetFields || action.targetFields.length === 0)) {
-      throw new Error("VITALS requirement type must include targetFields");
-    }
-    
-    // For dynamic rules, validate that the property is specified
-    if (ruleType === RuleType.DYNAMIC_RULE && !action.property) {
-      throw new Error("Dynamic rules must specify a property");
-    }
-    
-    // For dynamic visibility rules, validate the visibilityType
-    if (ruleType === RuleType.DYNAMIC_RULE && 
-        (action.type === ActionType.SHOW || action.type === ActionType.HIDE) && 
-        !action.visibilityType) {
-      throw new Error("Dynamic visibility rules must specify a visibilityType");
-    }
-  }
-}
+import { schemaValidator } from './schemaUtil'
 
 /**
  * Create the MAR form schema
@@ -212,56 +30,12 @@ export function getMarSchema(): FormSchema {
     fields: [
       // Basic medication information
       {
-        id: "medication",
+        id: "label",
         name: "Medication",
         type: FieldType.TEXT,
         editable: false,
-        required: false
-      },
-      {
-        id: "medicationTextUrl",
-        name: "Medication Text/URL",
-        type: FieldType.TEXT,
-        editable: true,
-        required: false
-      },
-      {
-        id: "dosage",
-        name: "Dosage",
-        type: FieldType.TEXT,
-        editable: true,
-        required: true
-      },
-      {
-        id: "diagnosis",
-        name: "Diagnosis",
-        type: FieldType.TEXT,
-        editable: true,
-        required: false
-      },
-      {
-        id: "routeOfAdmin",
-        name: "Route of Administration",
-        type: FieldType.SINGLE_SELECT,
-        editable: true,
-        required: true,
-        options: [
-          { name: "Oral", value: "PO" },
-          { name: "Subcutaneous", value: "SQ" },
-          { name: "Intramuscular", value: "IM" },
-          { name: "Transdermal", value: "T" }
-        ]
-      },
-      {
-        id: "drugCategories",
-        name: "Drug Categories",
-        type: FieldType.MULTI_SELECT,
-        editable: true,
         required: false,
-        options: [
-          { name: "Pain", value: "pain" },
-          { name: "Controlled", value: "controlled" }
-        ]
+        visible: true
       },
       
       // Administration fields
@@ -270,41 +44,55 @@ export function getMarSchema(): FormSchema {
         name: "Date/Time Administered",
         type: FieldType.DATETIME,
         editable: true,
-        required: false
+        required: false,
+        visible: true
       },
       {
         id: "signature",
         name: "Signature",
         type: FieldType.SIGNATURE,
         editable: true,
-        required: false
+        required: false,
+        visible: true
       },
       {
-        id: "exceptions",
+        id: "selectedException",
         name: "Exception",
         type: FieldType.SINGLE_SELECT,
         editable: true,
         required: false,
-        inlineData: true  // Use exceptions from the parent MAR data object
+        inlineData: true,
+        visible: true
       },
       {
         id: "notes",
         name: "Notes",
         type: FieldType.TEXT,
         editable: true,
-        required: false
+        required: false,
+        visible: true
       },
       {
         id: "instructions",
         name: "Instructions",
         type: FieldType.MEMO,
         editable: false,
-        required: false
+        required: false,
+        visible: true
+      },
+      {
+        id: "quantity",
+        name: "Quantity Admin",
+        type: FieldType.NUMBER,
+        editable: true,
+        required: true,
+        defaultValue: "1.0",
+        visible: true
       },
       
       // Vitals fields
       {
-        id: "bps",
+        id: "vitals.bps",
         name: "Blood Pressure Systolic",
         type: FieldType.NUMBER,
         editable: true,
@@ -312,10 +100,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 300
-        }
+        },
+        visible: false
       },
       {
-        id: "bpd",
+        id: "vitals.bpd",
         name: "Blood Pressure Diastolic",
         type: FieldType.NUMBER,
         editable: true,
@@ -323,10 +112,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 200
-        }
+        },
+        visible: false
       },
       {
-        id: "heartRate",
+        id: "vitals.heartRate",
         name: "Heart Rate",
         type: FieldType.NUMBER,
         editable: true,
@@ -334,10 +124,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 300
-        }
+        },
+        visible: false
       },
       {
-        id: "temp",
+        id: "vitals.temp",
         name: "Temperature",
         type: FieldType.NUMBER,
         editable: true,
@@ -345,10 +136,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 120
-        }
+        },
+        visible: false
       },
       {
-        id: "glucose",
+        id: "vitals.glucose",
         name: "Glucose/Blood sugar",
         type: FieldType.NUMBER,
         editable: true,
@@ -356,10 +148,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 1000
-        }
+        },
+        visible: false
       },
       {
-        id: "respRate",
+        id: "vitals.respRate",
         name: "Respiratory Rate",
         type: FieldType.NUMBER,
         editable: true,
@@ -367,10 +160,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 100
-        }
+        },
+        visible: false
       },
       {
-        id: "weight",
+        id: "vitals.weight",
         name: "Weight",
         type: FieldType.NUMBER,
         editable: true,
@@ -378,10 +172,11 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 1000
-        }
+        },
+        visible: false
       },
       {
-        id: "oxygen",
+        id: "vitals.oxygen",
         name: "O2 Sats",
         type: FieldType.NUMBER,
         editable: true,
@@ -389,7 +184,8 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 100
-        }
+        },
+        visible: false
       },
       
       // Pain assessment fields
@@ -402,7 +198,8 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 10
-        }
+        },
+        visible: false
       },
       {
         id: "postPain",
@@ -413,38 +210,92 @@ export function getMarSchema(): FormSchema {
         validation: {
           min: 0,
           max: 10
-        }
+        },
+        visible: false
       },
       {
         id: "effective",
         name: "Effectiveness",
         type: FieldType.SIGNATURE,
         editable: true,
-        required: false
+        required: false,
+        visible: false
       },
       {
         id: "prepSig",
         name: "Prepare Signature",
         type: FieldType.SIGNATURE,
         editable: true,
-        required: false
+        required: false,
+        visible: false
       }
     ],
     rules: [
+      {
+        id: "vitalVisibility",
+        type: RuleType.DYNAMIC_RULE,
+        description: "Use the MAR configuration to define what vitals to allow edits on",
+        condition: {
+          field: "whatVitals",
+          operator: ConditionOperator.CONTAINS
+        },
+        action: {
+          type: ActionType.SHOW,
+          property: "vitals",
+          propertyValues: [
+            {
+              value: "BP",
+              properties: [
+                "bpd",
+                "bps"
+              ]
+            },
+            {
+              value: "HR",
+              properties: [
+                "heartRate"
+              ]
+            },
+            {
+              value: "02STATS",
+              properties: [
+                "oxygen",
+                "respRate"
+              ]
+            },
+            {
+              value: "TEMP",
+              properties: [
+                "temp"
+              ]
+            },
+            {
+              value: "GLUCO",
+              properties: [
+                "glucose"
+              ]
+            },
+            {
+              value: "WEIGHT",
+              properties: [
+                "weight"
+              ]
+            }
+          ]
+        }
+      },
       // Dynamic Rules for Exceptions with Vitals Requirements
       {
         id: "exceptionRequiresVitals",
         type: RuleType.DYNAMIC_RULE,
-        description: "When an exception with vitalsRequired=true is selected, require vitals",
+        description: "When an exception with vitalsRequired=true is selected, require vitals that are visible",
         condition: {
-          field: "exceptions", 
+          field: "selectedException", 
           operator: ConditionOperator.ANY_VALUE
         },
         action: {
           type: ActionType.REQUIRE,
-          target: "bps", // Primary target field, others defined in targetFields
-          property: "vitalsRequired",
-          requirementType: RequirementType.VITALS,
+          property: "exceptions.vitalsRequired",
           targetFields: ["bps", "bpd", "heartRate", "respRate", "temp", "glucose", "weight", "oxygen"]
         }
       },
@@ -462,7 +313,6 @@ export function getMarSchema(): FormSchema {
           type: ActionType.REQUIRE,
           target: "notes",
           property: "noteRequired",
-          requirementType: RequirementType.NOTES
         }
       },
       
@@ -479,7 +329,6 @@ export function getMarSchema(): FormSchema {
           type: ActionType.REQUIRE,
           target: "signature",
           property: "medDestruction",
-          requirementType: RequirementType.MED_DESTRUCTION
         }
       },
       
@@ -603,159 +452,10 @@ export function getMarSchema(): FormSchema {
           type: ActionType.REQUIRE,
           target: "effective"
         }
-      },
-      
-      // Visibility Rules for Vitals
-      
-      // Rule 6: Hide vitals fields initially
-      {
-        id: "hideVitalsInitially",
-        type: RuleType.VISIBILITY,
-        description: "Hide blood pressure fields until needed",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_EMPTY
-        },
-        action: {
-          type: ActionType.HIDE,
-          target: "bps"
-        }
-      },
-      
-      // Rule 7: Hide blood pressure diastolic initially
-      {
-        id: "hideBPDInitially",
-        type: RuleType.VISIBILITY,
-        description: "Hide blood pressure diastolic field until needed",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_EMPTY
-        },
-        action: {
-          type: ActionType.HIDE,
-          target: "bpd"
-        }
-      },
-      
-      // Rule 8: Show blood pressure fields when administration time is entered
-      {
-        id: "showBPFields",
-        type: RuleType.VISIBILITY,
-        description: "Show BP fields when admin time is entered",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_NOT_EMPTY
-        },
-        action: {
-          type: ActionType.SHOW,
-          target: "bps"
-        }
-      },
-      
-      // Rule 9: Show BP diastolic when administration time is entered
-      {
-        id: "showBPDFields",
-        type: RuleType.VISIBILITY,
-        description: "Show BP diastolic field when admin time is entered",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_NOT_EMPTY
-        },
-        action: {
-          type: ActionType.SHOW,
-          target: "bpd"
-        }
-      },
-      
-      // Rules for heart rate visibility
-      {
-        id: "hideHeartRateInitially",
-        type: RuleType.VISIBILITY,
-        description: "Hide heart rate field until needed",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_EMPTY
-        },
-        action: {
-          type: ActionType.HIDE,
-          target: "heartRate"
-        }
-      },
-      {
-        id: "showHeartRateWhenAdministered",
-        type: RuleType.VISIBILITY,
-        description: "Show heart rate field when administered",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_NOT_EMPTY
-        },
-        action: {
-          type: ActionType.SHOW,
-          target: "heartRate"
-        }
-      },
-      
-      // Rules for other vitals (similar pattern)
-      {
-        id: "hideTempInitially",
-        type: RuleType.VISIBILITY,
-        description: "Hide temperature field until needed",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_EMPTY
-        },
-        action: {
-          type: ActionType.HIDE,
-          target: "temp"
-        }
-      },
-      {
-        id: "showTempWhenAdministered",
-        type: RuleType.VISIBILITY,
-        description: "Show temperature field when administered",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_NOT_EMPTY
-        },
-        action: {
-          type: ActionType.SHOW,
-          target: "temp"
-        }
-      },
-      
-      // Rules for glucose visibility
-      {
-        id: "hideGlucoseInitially",
-        type: RuleType.VISIBILITY,
-        description: "Hide glucose field until needed",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_EMPTY
-        },
-        action: {
-          type: ActionType.HIDE,
-          target: "glucose"
-        }
-      },
-      {
-        id: "showGlucoseWhenAdministered",
-        type: RuleType.VISIBILITY,
-        description: "Show glucose field when administered",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_NOT_EMPTY
-        },
-        action: {
-          type: ActionType.SHOW,
-          target: "glucose"
-        }
       }
     ]
   };
 }
-
-// Create a singleton instance of the schema validator
-export const schemaValidator = new SchemaValidator();
 
 // Validate the MAR schema on load
 try {

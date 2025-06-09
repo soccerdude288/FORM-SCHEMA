@@ -1,359 +1,873 @@
 [
     {
-        "version": "3",
-        "id": "22454688",
-        "date": "05/14/2025",
-        "label": "Asprin",
-        "dosage": "100MG",
-        "schedAdmin": "AM",
-        "instructions": "Administer 1 Tablet (100MG) Oral (PO) at AM, PM",
+        "version": "2",
+        "id": "22467412",
+        "date": "06/10/2025",
+        "label": "Allergy Relief 24-Hr Oral Tablet 10 MG (Loratadine Tab 10 MG)",
+        "dosage": "10mg",
+        "schedAdmin": "PRN",
+        "instructions": "Administer 1 Tablet (10mg) Oral (PO) as needed no more than once per 4 hours. Follow up after 30 minutes.",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     },
     {
         "version": "3",
-        "id": "22454696",
-        "date": "05/14/2025",
-        "label": "Asprin",
-        "dosage": "100MG",
-        "schedAdmin": "PM",
-        "instructions": "Administer 1 Tablet (100MG) Oral (PO) at AM, PM",
+        "id": "22467428",
+        "date": "06/10/2025",
+        "label": "Acne Maximum Strength External Cream 10 % (Benzoyl Peroxide Cream 10%)",
+        "dosage": "10mg",
+        "schedAdmin": "AM",
+        "instructions": "Administer 1 Applicatorful (10mg) Topical (T) at AM, PM, Bedtime",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
+    },
+    {
+        "version": "3",
+        "id": "22467422",
+        "date": "06/10/2025",
+        "label": "Acne Maximum Strength External Cream 10 % (Benzoyl Peroxide Cream 10%)",
+        "dosage": "10mg",
+        "schedAdmin": "PM",
+        "instructions": "Administer 1 Applicatorful (10mg) Topical (T) at AM, PM, Bedtime",
+        "notes": "",
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
+    },
+    {
+        "version": "3",
+        "id": "22467413",
+        "date": "06/10/2025",
+        "label": "Acne Maximum Strength External Cream 10 % (Benzoyl Peroxide Cream 10%)",
+        "dosage": "10mg",
+        "schedAdmin": "Bedtime",
+        "instructions": "Administer 1 Applicatorful (10mg) Topical (T) at AM, PM, Bedtime",
+        "notes": "",
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
+    },
+    {
+        "version": "3",
+        "id": "22467436",
+        "date": "06/10/2025",
+        "label": "Colon Cleanse Oral Capsule (Misc Natural Products Cap)",
+        "dosage": "20mg",
+        "schedAdmin": "2:00am",
+        "instructions": "Administer 1 Capsule (20mg) Oral (PO) at 2:00am",
+        "notes": "",
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     },
     {
         "version": "2",
-        "id": "22455472",
-        "date": "05/14/2025",
-        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
-        "dosage": "10/325mg",
+        "id": "22470522",
+        "date": "06/10/2025",
+        "label": "Percocet Oral Tablet 7.5-325 MG (Oxycodone w/ Acetaminophen Tab 7.5-325 MG) (C2)",
+        "dosage": "100mg",
         "schedAdmin": "PRN",
-        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "instructions": "Administer 1 Tablet (100mg) Oral (PO) at AM, PM, Bedtime, 11:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.\n0 - 82 = 2 units\n82 - 167 = 3 units\n167 - 255 = 4 units\n255 - 333 = 5 units\nGreater Than Scale Instructions: Greater than instructions\nLess Than Scale Instructions: Less than instructions",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "BP",
+                "HR",
+                "TEMP",
+                "GLUCO",
+                "RESP",
+                "WEIGHT",
+                "O2SATS"
+            ],
+            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     },
     {
         "version": "3",
-        "id": "22455433",
-        "date": "05/14/2025",
-        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
-        "dosage": "10/325mg",
-        "schedAdmin": "8:00am",
-        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "id": "22470534",
+        "date": "06/10/2025",
+        "label": "Percocet Oral Tablet 7.5-325 MG (Oxycodone w/ Acetaminophen Tab 7.5-325 MG) (C2)",
+        "dosage": "100mg",
+        "schedAdmin": "11:00pm",
+        "instructions": "Administer 1 Tablet (100mg) Oral (PO) at AM, PM, Bedtime, 11:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.\n0 - 82 = 2 units\n82 - 167 = 3 units\n167 - 255 = 4 units\n255 - 333 = 5 units\nGreater Than Scale Instructions: Greater than instructions\nLess Than Scale Instructions: Less than instructions",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "BP",
+                "HR",
+                "TEMP",
+                "GLUCO",
+                "RESP",
+                "WEIGHT",
+                "O2SATS"
+            ],
+            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     },
     {
         "version": "3",
-        "id": "22455448",
-        "date": "05/14/2025",
-        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
-        "dosage": "10/325mg",
-        "schedAdmin": "12:00pm",
-        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "id": "22470594",
+        "date": "06/10/2025",
+        "label": "Percocet Oral Tablet 7.5-325 MG (Oxycodone w/ Acetaminophen Tab 7.5-325 MG) (C2)",
+        "dosage": "100mg",
+        "schedAdmin": "PM",
+        "instructions": "Administer 1 Tablet (100mg) Oral (PO) at AM, PM, Bedtime, 11:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.\n0 - 82 = 2 units\n82 - 167 = 3 units\n167 - 255 = 4 units\n255 - 333 = 5 units\nGreater Than Scale Instructions: Greater than instructions\nLess Than Scale Instructions: Less than instructions",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "BP",
+                "HR",
+                "TEMP",
+                "GLUCO",
+                "RESP",
+                "WEIGHT",
+                "O2SATS"
+            ],
+            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     },
     {
         "version": "3",
-        "id": "22455428",
-        "date": "05/14/2025",
-        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
-        "dosage": "10/325mg",
-        "schedAdmin": "4:00pm",
-        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "id": "22470510",
+        "date": "06/10/2025",
+        "label": "Percocet Oral Tablet 7.5-325 MG (Oxycodone w/ Acetaminophen Tab 7.5-325 MG) (C2)",
+        "dosage": "100mg",
+        "schedAdmin": "AM",
+        "instructions": "Administer 1 Tablet (100mg) Oral (PO) at AM, PM, Bedtime, 11:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.\n0 - 82 = 2 units\n82 - 167 = 3 units\n167 - 255 = 4 units\n255 - 333 = 5 units\nGreater Than Scale Instructions: Greater than instructions\nLess Than Scale Instructions: Less than instructions",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "BP",
+                "HR",
+                "TEMP",
+                "GLUCO",
+                "RESP",
+                "WEIGHT",
+                "O2SATS"
+            ],
+            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     },
     {
         "version": "3",
-        "id": "22455431",
-        "date": "05/14/2025",
-        "label": "Percocet Oral Tablet 10-325 MG (Oxycodone w/ Acetaminophen Tab 10-325 MG) (C2)",
-        "dosage": "10/325mg",
-        "schedAdmin": "8:00pm",
-        "instructions": "Administer 1 Tablet (10/325mg) Oral (PO) at 8:00am, 12:00pm, 4:00pm, 8:00pm, PRN. Follow up after 30 minutes.",
+        "id": "22470602",
+        "date": "06/10/2025",
+        "label": "Percocet Oral Tablet 7.5-325 MG (Oxycodone w/ Acetaminophen Tab 7.5-325 MG) (C2)",
+        "dosage": "100mg",
+        "schedAdmin": "Bedtime",
+        "instructions": "Administer 1 Tablet (100mg) Oral (PO) at AM, PM, Bedtime, 11:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.\n0 - 82 = 2 units\n82 - 167 = 3 units\n167 - 255 = 4 units\n255 - 333 = 5 units\nGreater Than Scale Instructions: Greater than instructions\nLess Than Scale Instructions: Less than instructions",
         "notes": "",
-        "exceptions": [
-            {
-                "name": "Agressive Behavior",
-                "value": "22452187",
-                "vitalsRequired": true,
-                "noteRequired": true,
-                "medDestruction": true
-            },
-            {
-                "name": "Away",
-                "value": "22084651",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med not available",
-                "value": "21964230",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            },
-            {
-                "name": "Med on hold",
-                "value": "21964210",
-                "vitalsRequired": false,
-                "noteRequired": false,
-                "medDestruction": false
-            },
-            {
-                "name": "Refused",
-                "value": "21964229",
-                "vitalsRequired": false,
-                "noteRequired": true,
-                "medDestruction": false
-            }
-        ],
         "selectedException": null,
         "quantity": 1,
         "adminTime": null,
-        "signature": null
+        "signature": null,
+        "drugCategories": [],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "BP",
+                "HR",
+                "TEMP",
+                "GLUCO",
+                "RESP",
+                "WEIGHT",
+                "O2SATS"
+            ],
+            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
+    },
+    {
+        "version": "2",
+        "id": "22470680",
+        "date": "06/10/2025",
+        "label": "Morphine Sulfate (Concentrate) Oral Solution 20 MG/ML (Morphine Sulfate Oral Soln 100 MG/5ML (20 MG/ML)) (C2)",
+        "dosage": "100ml",
+        "schedAdmin": "PRN",
+        "instructions": "Administer 1 Milliliter (100ml) Oral (PO) at 7:00am, 3:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.",
+        "notes": "",
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null,
+        "drugCategories": [
+            "pain"
+        ],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "HR"
+            ],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
+    },
+    {
+        "version": "3",
+        "id": "22470672",
+        "date": "06/10/2025",
+        "label": "Morphine Sulfate (Concentrate) Oral Solution 20 MG/ML (Morphine Sulfate Oral Soln 100 MG/5ML (20 MG/ML)) (C2)",
+        "dosage": "100ml",
+        "schedAdmin": "3:00pm",
+        "instructions": "Administer 1 Milliliter (100ml) Oral (PO) at 7:00am, 3:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.",
+        "notes": "",
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null,
+        "drugCategories": [
+            "pain"
+        ],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "HR"
+            ],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
+    },
+    {
+        "version": "3",
+        "id": "22470686",
+        "date": "06/10/2025",
+        "label": "Morphine Sulfate (Concentrate) Oral Solution 20 MG/ML (Morphine Sulfate Oral Soln 100 MG/5ML (20 MG/ML)) (C2)",
+        "dosage": "100ml",
+        "schedAdmin": "7:00am",
+        "instructions": "Administer 1 Milliliter (100ml) Oral (PO) at 7:00am, 3:00pm, PRN no more than once per hour. PRN limited to no more than 10 times per day. Follow up after 30 minutes.",
+        "notes": "",
+        "selectedException": null,
+        "quantity": 1,
+        "adminTime": null,
+        "signature": null,
+        "drugCategories": [
+            "pain"
+        ],
+        "dynamicValues": {
+            "exceptions": [
+                {
+                    "name": "Away",
+                    "value": "22084652",
+                    "vitalsRequired": false,
+                    "noteRequired": true,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Resident is Angry",
+                    "value": "22471367",
+                    "vitalsRequired": true,
+                    "noteRequired": true,
+                    "medDestruction": true
+                },
+                {
+                    "name": "TEST",
+                    "value": "22316190",
+                    "vitalsRequired": false,
+                    "noteRequired": false,
+                    "medDestruction": false
+                },
+                {
+                    "name": "Top Level Exception",
+                    "value": "22438507",
+                    "vitalsRequired": true,
+                    "noteRequired": false,
+                    "medDestruction": false
+                }
+            ],
+            "whatVitals": [
+                "HR"
+            ],
+            "slidingScale": ""
+        },
+        "vitals": {
+            "bp": "",
+            "bpd": null,
+            "bps": null,
+            "heartRate": null,
+            "oxygen": null,
+            "temp": null,
+            "glucose": null,
+            "respRate": null,
+            "weight": null
+        },
+        "prePain": null,
+        "postPain": null,
+        "prepSig": null
     }
 ]

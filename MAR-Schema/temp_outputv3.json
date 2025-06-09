@@ -1,0 +1,415 @@
+{
+    "name": "MAR",
+    "multiEntry": true,
+    "version": "1.0.0",
+    "fields": [
+        {
+            "id": "label",
+            "name": "Medication",
+            "type": "TEXT",
+            "editable": false,
+            "required": false,
+            "visible": true
+        },
+        {
+            "id": "adminTime",
+            "name": "Date/Time Administered",
+            "type": "DATETIME",
+            "editable": true,
+            "required": false,
+            "visible": true
+        },
+        {
+            "id": "signature",
+            "name": "Signature",
+            "type": "SIGNATURE",
+            "editable": true,
+            "required": false,
+            "visible": true
+        },
+        {
+            "id": "selectedException",
+            "name": "Exception",
+            "type": "SINGLE_SELECT",
+            "editable": true,
+            "required": false,
+            "inlineData": true,
+            "visible": true
+        },
+        {
+            "id": "notes",
+            "name": "Notes",
+            "type": "TEXT",
+            "editable": true,
+            "required": false,
+            "visible": true
+        },
+        {
+            "id": "instructions",
+            "name": "Instructions",
+            "type": "MEMO",
+            "editable": false,
+            "required": false,
+            "visible": true
+        },
+        {
+            "id": "quantity",
+            "name": "Quantity Admin",
+            "type": "NUMBER",
+            "editable": true,
+            "required": true,
+            "defaultValue": "1.0",
+            "visible": true
+        },
+        {
+            "id": "vitals.bps",
+            "name": "Blood Pressure Systolic",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 300
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.bpd",
+            "name": "Blood Pressure Diastolic",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 200
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.heartRate",
+            "name": "Heart Rate",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 300
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.temp",
+            "name": "Temperature",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 120
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.glucose",
+            "name": "Glucose/Blood sugar",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 1000
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.respRate",
+            "name": "Respiratory Rate",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 100
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.weight",
+            "name": "Weight",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 1000
+            },
+            "visible": false
+        },
+        {
+            "id": "vitals.oxygen",
+            "name": "O2 Sats",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 100
+            },
+            "visible": false
+        },
+        {
+            "id": "prePain",
+            "name": "Pre Pain Level",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 10
+            },
+            "visible": false
+        },
+        {
+            "id": "postPain",
+            "name": "Post Pain Level",
+            "type": "NUMBER",
+            "editable": true,
+            "required": false,
+            "validation": {
+                "min": 0,
+                "max": 10
+            },
+            "visible": false
+        },
+        {
+            "id": "effective",
+            "name": "Effectiveness",
+            "type": "SIGNATURE",
+            "editable": true,
+            "required": false,
+            "visible": false
+        },
+        {
+            "id": "prepSig",
+            "name": "Prepare Signature",
+            "type": "SIGNATURE",
+            "editable": true,
+            "required": false,
+            "visible": false
+        }
+    ],
+    "rules": [
+        {
+            "id": "vitalVisibility",
+            "type": "DYNAMIC_RULE",
+            "description": "Use the MAR configuration to define what vitals to allow edits on",
+            "condition": {
+                "field": "whatVitals",
+                "operator": "CONTAINS"
+            },
+            "action": {
+                "type": "SHOW",
+                "property": "vitals",
+                "propertyValues": [
+                    {
+                        "value": "BP",
+                        "properties": [
+                            "bpd",
+                            "bps"
+                        ]
+                    },
+                    {
+                        "value": "HR",
+                        "properties": [
+                            "heartRate"
+                        ]
+                    },
+                    {
+                        "value": "02STATS",
+                        "properties": [
+                            "oxygen",
+                            "respRate"
+                        ]
+                    },
+                    {
+                        "value": "TEMP",
+                        "properties": [
+                            "temp"
+                        ]
+                    },
+                    {
+                        "value": "GLUCO",
+                        "properties": [
+                            "glucose"
+                        ]
+                    },
+                    {
+                        "value": "WEIGHT",
+                        "properties": [
+                            "weight"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "exceptionRequiresVitals",
+            "type": "DYNAMIC_RULE",
+            "description": "When an exception with vitalsRequired=true is selected, require vitals that are visible",
+            "condition": {
+                "field": "selectedException",
+                "operator": "ANY_VALUE"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "property": "exceptions.vitalsRequired",
+                "targetFields": [
+                    "bps",
+                    "bpd",
+                    "heartRate",
+                    "respRate",
+                    "temp",
+                    "glucose",
+                    "weight",
+                    "oxygen"
+                ]
+            }
+        },
+        {
+            "id": "exceptionRequiresNotes",
+            "type": "DYNAMIC_RULE",
+            "description": "When an exception with noteRequired=true is selected, require notes",
+            "condition": {
+                "field": "exceptions",
+                "operator": "ANY_VALUE"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "notes",
+                "property": "noteRequired"
+            }
+        },
+        {
+            "id": "exceptionRequiresMedDestruction",
+            "type": "DYNAMIC_RULE",
+            "description": "When an exception with medDestruction=true is selected, require medication destruction fields",
+            "condition": {
+                "field": "exceptions",
+                "operator": "ANY_VALUE"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "signature",
+                "property": "medDestruction"
+            }
+        },
+        {
+            "id": "exceptionShowsPrepSig",
+            "type": "DYNAMIC_RULE",
+            "description": "When an exception with medDestruction=true is selected, show prepare signature field",
+            "condition": {
+                "field": "exceptions",
+                "operator": "ANY_VALUE"
+            },
+            "action": {
+                "type": "SHOW",
+                "target": "prepSig",
+                "property": "medDestruction",
+                "visibilityType": "CONDITIONAL",
+                "dynamicVisibility": true
+            }
+        },
+        {
+            "id": "hidePrepSigInitially",
+            "type": "VISIBILITY",
+            "description": "Hide prepare signature by default",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_EMPTY"
+            },
+            "action": {
+                "type": "HIDE",
+                "target": "prepSig",
+                "visibilityType": "STANDARD"
+            }
+        },
+        {
+            "id": "exceptionRequiresNote",
+            "type": "REQUIREMENT",
+            "description": "When an exception is entered, require a note",
+            "condition": {
+                "field": "exceptions",
+                "operator": "ANY_VALUE"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "notes"
+            }
+        },
+        {
+            "id": "painMedRequiresPainLevel",
+            "type": "REQUIREMENT",
+            "description": "When medication is a pain medication, require pain level",
+            "condition": {
+                "field": "drugCategories",
+                "operator": "CONTAINS",
+                "value": "pain"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "prePain"
+            }
+        },
+        {
+            "id": "painMedRequiresPostPainLevel",
+            "type": "REQUIREMENT",
+            "description": "When pain medication is administered, require post-pain level",
+            "condition": {
+                "field": "drugCategories",
+                "operator": "CONTAINS",
+                "value": "pain",
+                "combineOperator": "AND",
+                "nextCondition": {
+                    "field": "adminTime",
+                    "operator": "IS_NOT_EMPTY"
+                }
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "postPain"
+            }
+        },
+        {
+            "id": "administeredRequiresSignature",
+            "type": "REQUIREMENT",
+            "description": "When medication is administered, require signature",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY"
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "signature"
+            }
+        },
+        {
+            "id": "prnRequiresEffectiveness",
+            "type": "REQUIREMENT",
+            "description": "When PRN medication is administered, require effectiveness signature",
+            "condition": {
+                "field": "adminTime",
+                "operator": "IS_NOT_EMPTY",
+                "combineOperator": "AND",
+                "nextCondition": {
+                    "field": "drugCategories",
+                    "operator": "CONTAINS",
+                    "value": "pain"
+                }
+            },
+            "action": {
+                "type": "REQUIRE",
+                "target": "effective"
+            }
+        }
+    ]
+}
