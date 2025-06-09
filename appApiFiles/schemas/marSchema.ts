@@ -13,7 +13,9 @@ import {
   RequirementType,
   VisibilityType,
   FieldOption,
-  Validation
+  Validation,
+  CalculationType,
+  MarDynamicValues
 } from './formSchemaInterfaces';
 
 import { schemaValidator } from './schemaUtil'
@@ -92,7 +94,7 @@ export function getMarSchema(): FormSchema {
       
       // Vitals fields
       {
-        id: "vitals.bps",
+        id: "bps",
         name: "Blood Pressure Systolic",
         type: FieldType.NUMBER,
         editable: true,
@@ -101,10 +103,14 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 300
         },
-        visible: false
+        visible: false,
+        dynamicField: true,
+        dynamicMapping: {
+          source: "whatVitals"
+        }
       },
       {
-        id: "vitals.bpd",
+        id: "bpd",
         name: "Blood Pressure Diastolic",
         type: FieldType.NUMBER,
         editable: true,
@@ -113,10 +119,14 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 200
         },
-        visible: false
+        visible: false,
+        dynamicField: true,
+        dynamicMapping: {
+          source: "whatVitals"
+        }
       },
       {
-        id: "vitals.heartRate",
+        id: "heartRate",
         name: "Heart Rate",
         type: FieldType.NUMBER,
         editable: true,
@@ -128,7 +138,7 @@ export function getMarSchema(): FormSchema {
         visible: false
       },
       {
-        id: "vitals.temp",
+        id: "temp",
         name: "Temperature",
         type: FieldType.NUMBER,
         editable: true,
@@ -140,7 +150,7 @@ export function getMarSchema(): FormSchema {
         visible: false
       },
       {
-        id: "vitals.glucose",
+        id: "glucose",
         name: "Glucose/Blood sugar",
         type: FieldType.NUMBER,
         editable: true,
@@ -152,7 +162,7 @@ export function getMarSchema(): FormSchema {
         visible: false
       },
       {
-        id: "vitals.respRate",
+        id: "respRate",
         name: "Respiratory Rate",
         type: FieldType.NUMBER,
         editable: true,
@@ -164,7 +174,7 @@ export function getMarSchema(): FormSchema {
         visible: false
       },
       {
-        id: "vitals.weight",
+        id: "weight",
         name: "Weight",
         type: FieldType.NUMBER,
         editable: true,
@@ -176,7 +186,7 @@ export function getMarSchema(): FormSchema {
         visible: false
       },
       {
-        id: "vitals.oxygen",
+        id: "oxygen",
         name: "O2 Sats",
         type: FieldType.NUMBER,
         editable: true,
@@ -228,6 +238,33 @@ export function getMarSchema(): FormSchema {
         editable: true,
         required: false,
         visible: false
+      },
+      
+      // Calculated field for sliding scale
+      {
+        id: "slidingScaleDose",
+        name: "Sliding Scale Dose",
+        type: FieldType.CALCULATED,
+        editable: false,
+        required: false,
+        visible: false,
+        dynamicField: true,
+        dynamicMapping: {
+          source: "slidingScale",
+          transform: (scale) => ({
+            ranges: scale.start,
+            values: scale.doses
+          })
+        },
+        calculation: {
+          type: CalculationType.RANGE_LOOKUP,
+          rangeLookup: {
+            inputField: "glucose",
+            ranges: [],  // Will be populated from dynamicValues.slidingScale
+            values: [],  // Will be populated from dynamicValues.slidingScale
+            defaultValue: "No dose recommended"
+          }
+        }
       }
     ],
     rules: [
@@ -236,50 +273,40 @@ export function getMarSchema(): FormSchema {
         type: RuleType.DYNAMIC_RULE,
         description: "Use the MAR configuration to define what vitals to allow edits on",
         condition: {
-          field: "whatVitals",
+          field: "dynamicValues.whatVitals",
           operator: ConditionOperator.CONTAINS
         },
         action: {
           type: ActionType.SHOW,
-          property: "vitals",
-          propertyValues: [
+          property: "whatVitals",
+          propertyMappings: [
             {
               value: "BP",
-              properties: [
-                "bpd",
-                "bps"
-              ]
+              targetFields: ["bps", "bpd"]
             },
             {
               value: "HR",
-              properties: [
-                "heartRate"
-              ]
+              targetFields: ["heartRate"]
             },
             {
-              value: "02STATS",
-              properties: [
-                "oxygen",
-                "respRate"
-              ]
+              value: "O2SATS",
+              targetFields: ["oxygen"]
+            },
+            {
+              value: "RESP",
+              targetFields: ["respRate"]
             },
             {
               value: "TEMP",
-              properties: [
-                "temp"
-              ]
+              targetFields: ["temp"]
             },
             {
               value: "GLUCO",
-              properties: [
-                "glucose"
-              ]
+              targetFields: ["glucose"]
             },
             {
               value: "WEIGHT",
-              properties: [
-                "weight"
-              ]
+              targetFields: ["weight"]
             }
           ]
         }
@@ -295,7 +322,7 @@ export function getMarSchema(): FormSchema {
         },
         action: {
           type: ActionType.REQUIRE,
-          property: "exceptions.vitalsRequired",
+          property: "vitalsRequired",
           targetFields: ["bps", "bpd", "heartRate", "respRate", "temp", "glucose", "weight", "oxygen"]
         }
       },
@@ -306,13 +333,13 @@ export function getMarSchema(): FormSchema {
         type: RuleType.DYNAMIC_RULE,
         description: "When an exception with noteRequired=true is selected, require notes",
         condition: {
-          field: "exceptions",
+          field: "selectedException",
           operator: ConditionOperator.ANY_VALUE
         },
         action: {
           type: ActionType.REQUIRE,
           target: "notes",
-          property: "noteRequired",
+          property: "noteRequired"
         }
       },
       
@@ -322,13 +349,13 @@ export function getMarSchema(): FormSchema {
         type: RuleType.DYNAMIC_RULE,
         description: "When an exception with medDestruction=true is selected, require medication destruction fields",
         condition: {
-          field: "exceptions",
+          field: "selectedException",
           operator: ConditionOperator.ANY_VALUE
         },
         action: {
           type: ActionType.REQUIRE,
           target: "signature",
-          property: "medDestruction",
+          property: "medDestruction"
         }
       },
       
@@ -338,7 +365,7 @@ export function getMarSchema(): FormSchema {
         type: RuleType.DYNAMIC_RULE,
         description: "When an exception with medDestruction=true is selected, show prepare signature field",
         condition: {
-          field: "exceptions",
+          field: "selectedException",
           operator: ConditionOperator.ANY_VALUE
         },
         action: {
@@ -366,18 +393,33 @@ export function getMarSchema(): FormSchema {
         }
       },
       
-      // Legacy Rule 1: Exception requires notes - keeping for compatibility
+      // Dynamic Rule for Sliding Scale Visibility
       {
-        id: "exceptionRequiresNote",
-        type: RuleType.REQUIREMENT,
-        description: "When an exception is entered, require a note",
+        id: "slidingScaleVisibility",
+        type: RuleType.DYNAMIC_RULE,
+        description: "Show sliding scale dose calculation when sliding scale data is present",
         condition: {
-          field: "exceptions",
-          operator: ConditionOperator.ANY_VALUE
+          field: "dynamicValues.slidingScale",
+          operator: ConditionOperator.IS_NOT_EMPTY
         },
         action: {
-          type: ActionType.REQUIRE,
-          target: "notes"
+          type: ActionType.SHOW,
+          target: "slidingScaleDose"
+        }
+      },
+      
+      // Rule for non-editable fields when signature is present
+      {
+        id: "signedFieldsNonEditable",
+        type: RuleType.VALIDATION,
+        description: "Make fields non-editable when signature is present",
+        condition: {
+          field: "signature",
+          operator: ConditionOperator.IS_NOT_EMPTY
+        },
+        action: {
+          type: ActionType.MAKE_NON_EDITABLE,
+          targetFields: ["adminTime", "quantity", "notes", "selectedException", "vitals.bps", "vitals.bpd", "vitals.heartRate", "vitals.temp", "vitals.glucose", "vitals.respRate", "vitals.weight", "vitals.oxygen", "prePain", "postPain"]
         }
       },
       
@@ -433,11 +475,32 @@ export function getMarSchema(): FormSchema {
         }
       },
       
-      // Rule 5: PRN medication requires effectiveness signature
+      // Rule 5: PRN medication shows effectiveness signature
       {
-        id: "prnRequiresEffectiveness",
+        id: "prnShowsEffectiveness",
+        type: RuleType.VISIBILITY,
+        description: "When PRN pain medication is administered, show effectiveness signature",
+        condition: {
+          field: "adminTime",
+          operator: ConditionOperator.IS_NOT_EMPTY,
+          combineOperator: "AND",
+          nextCondition: {
+            field: "drugCategories",
+            operator: ConditionOperator.CONTAINS,
+            value: "pain"
+          }
+        },
+        action: {
+          type: ActionType.SHOW,
+          target: "effective"
+        }
+      },
+      
+      // Rule for PRN effectiveness requirement
+      {
+        id: "prnRequiresEffectivenessRequired",
         type: RuleType.REQUIREMENT,
-        description: "When PRN medication is administered, require effectiveness signature",
+        description: "When PRN medication is administered and effective is visible, require effectiveness signature",
         condition: {
           field: "adminTime",
           operator: ConditionOperator.IS_NOT_EMPTY,
@@ -453,7 +516,8 @@ export function getMarSchema(): FormSchema {
           target: "effective"
         }
       }
-    ]
+    ],
+    dynamicValues: {} as MarDynamicValues // Initialize with empty object, will be populated at runtime
   };
 }
 

@@ -22,7 +22,8 @@ export enum FieldType {
   DATETIME = "DATETIME",
   SINGLE_SELECT = "SINGLE_SELECT",
   MULTI_SELECT = "MULTI_SELECT",
-  SIGNATURE = "SIGNATURE"
+  SIGNATURE = "SIGNATURE",
+  CALCULATED = "CALCULATED"
 }
 
 /**
@@ -63,7 +64,8 @@ export enum ActionType {
   OPTIONAL = "OPTIONAL",
   CALCULATE = "CALCULATE",
   VALIDATE = "VALIDATE",
-  FILTER_OPTIONS = "FILTER_OPTIONS"
+  FILTER_OPTIONS = "FILTER_OPTIONS",
+  MAKE_NON_EDITABLE = "MAKE_NON_EDITABLE"
 }
 
 // -------------------------
@@ -128,11 +130,78 @@ export interface ExceptionOptionProperties {
 }
 
 /**
+ * Property mapping for dynamic rules
+ */
+export interface PropertyMapping {
+  value: string;                 // Value that triggers this mapping
+  targetFields: string[];        // Fields that should be affected
+}
+
+/**
+ * Generic calculation configuration
+ */
+export enum CalculationType {
+  RANGE_LOOKUP = "RANGE_LOOKUP",     // Value falls within ranges to determine result
+  FORMULA = "FORMULA",               // Mathematical formula calculation
+  VALUE_LOOKUP = "VALUE_LOOKUP",     // Direct value to value mapping
+  CONDITIONAL = "CONDITIONAL"        // If-then-else logic
+}
+
+/**
+ * Range lookup calculation (like sliding scale)
+ */
+export interface RangeLookupConfig {
+  inputField: string;            // Field that provides the input value
+  ranges: number[];              // Range boundaries (e.g., [0, 82, 167, 255, 333])
+  values: (number | string)[];   // Corresponding values for each range
+  defaultValue?: any;            // Value if input doesn't match any range
+}
+
+/**
+ * Value lookup calculation (direct mapping)
+ */
+export interface ValueLookupConfig {
+  inputField: string;            // Field that provides the input value
+  mappings: { [key: string]: any }; // Direct value mappings
+  defaultValue?: any;            // Value if input doesn't match any mapping
+}
+
+/**
+ * Formula calculation
+ */
+export interface FormulaConfig {
+  formula: string;               // Mathematical expression (e.g., "field1 + field2 * 0.5")
+  inputFields: string[];         // Fields referenced in the formula
+}
+
+/**
+ * Conditional calculation
+ */
+export interface ConditionalConfig {
+  conditions: Array<{
+    condition: Condition;        // Condition to check
+    value: any;                  // Value if condition is true
+  }>;
+  defaultValue?: any;            // Value if no conditions match
+}
+
+/**
+ * Generic calculation configuration
+ */
+export interface CalculationConfig {
+  type: CalculationType;
+  rangeLookup?: RangeLookupConfig;
+  valueLookup?: ValueLookupConfig;
+  formula?: FormulaConfig;
+  conditional?: ConditionalConfig;
+}
+
+/**
  * Action to take when rule conditions are met
  */
 export interface Action {
   type: ActionType;              // What kind of action
-  target: string;                // Field ID this action affects
+  target?: string;               // Field ID this action affects
   value?: any;                   // Optional value for calculations/validations
   requirementType?: RequirementType; // For REQUIRE actions, the type of requirement
   visibilityType?: VisibilityType;  // For SHOW/HIDE actions, the type of visibility
@@ -140,10 +209,32 @@ export interface Action {
   sourceOption?: string;         // For option-based rules, the option value that triggers this
   property?: string;             // For dynamic rules, the property on the option that controls this
   dynamicVisibility?: boolean;   // For dynamic visibility rules
+  propertyMappings?: PropertyMapping[]; // For mapping dynamic values to field operations
+  calculation?: CalculationConfig;      // For calculation actions
 }
 
 /**
- * Field definition
+ * Dynamic values that can affect form behavior at runtime
+ * This is a generic interface that can be extended for specific form types
+ */
+export interface DynamicValues {
+  [key: string]: any;  // Allow any dynamic value to be stored
+}
+
+/**
+ * Example of a MAR-specific dynamic values interface
+ * This would be defined in the MAR schema file
+ */
+export interface MarDynamicValues extends DynamicValues {
+  whatVitals?: string[];        // Array of vitals that apply to this entry
+  slidingScale?: {              // Sliding scale configuration
+    start: number[];           // Range boundaries
+    doses: (number | string)[]; // Corresponding doses
+  };
+}
+
+/**
+ * Field definition with enhanced support for dynamic behavior
  */
 export interface Field {
   id: string;                    // Unique field identifier
@@ -151,8 +242,8 @@ export interface Field {
   type: FieldType;               // Field type
   editable: boolean;             // Whether field can be edited
   required: boolean;             // Whether field is required by default
-  defaultValue?: string;          // Default Value
-  visible: boolean;             // Whether field is visible by default
+  defaultValue?: string;         // Default Value
+  visible: boolean;              // Whether field is visible by default
   
   // Options configuration
   options?: FieldOption[];       // For select fields, list of static options
@@ -161,8 +252,18 @@ export interface Field {
   inlineData?: boolean;          // Whether to use inline data from parent request
   optionProperties?: ExceptionOptionProperties[]; // Additional properties for dynamic options
   
+  // Calculated field configuration
+  calculation?: CalculationConfig; // For calculated fields
+  
   // Validation
   validation?: Validation;       // Validation rules
+
+  // Dynamic behavior
+  dynamicField?: boolean;        // Whether this field's behavior is controlled by dynamicValues
+  dynamicMapping?: {             // How this field maps to dynamic values
+    source: string;              // Source property in dynamicValues
+    transform?: (value: any) => any; // Optional transform function
+  };
 }
 
 /**
@@ -177,7 +278,7 @@ export interface Rule {
 }
 
 /**
- * Complete form schema
+ * Form schema with support for dynamic values
  */
 export interface FormSchema {
   name: string;                  // Form name
@@ -185,4 +286,5 @@ export interface FormSchema {
   fields: Field[];               // List of fields in form
   rules: Rule[];                 // List of business rules
   version?: string;              // Optional schema version
+  dynamicValues?: DynamicValues; // Optional dynamic values that affect form behavior
 }

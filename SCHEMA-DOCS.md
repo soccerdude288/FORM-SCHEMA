@@ -62,7 +62,8 @@ interface Field {
 | `DATETIME` | Date and time picker | None |
 | `SINGLE_SELECT` | Dropdown/radio buttons | `options` or `inlineData` |
 | `MULTI_SELECT` | Checkboxes | `options` or `inlineData` |
-| `SIGNATURE` | Signature capture | None |
+| `SIGNATURE` | Signature capture | **Special behavior: non-editable after signed** |
+| `CALCULATED` | Read-only calculated values | `calculation` configuration |
 
 ### Field Examples
 
@@ -115,6 +116,39 @@ interface Field {
   "validation": {
     "min": 0,
     "max": 300
+  }
+}
+```
+
+**Signature Field:**
+```json
+{
+  "id": "signature",
+  "name": "Signature",
+  "type": "SIGNATURE",
+  "editable": true,
+  "required": false
+}
+```
+*Note: Signature fields become non-editable and display as timestamps once signed.*
+
+**Calculated Field (Sliding Scale):**
+```json
+{
+  "id": "slidingScaleDose",
+  "name": "Sliding Scale Dose",
+  "type": "CALCULATED",
+  "editable": false,
+  "required": false,
+  "visible": false,
+  "calculation": {
+    "type": "RANGE_LOOKUP",
+    "rangeLookup": {
+      "inputField": "vitals.glucose",
+      "ranges": [0, 82, 167, 255, 333],
+      "values": [2, 3, 4, 5],
+      "defaultValue": "No dose recommended"
+    }
   }
 }
 ```
@@ -176,7 +210,7 @@ interface Rule {
 |------|---------|---------------|
 | `VISIBILITY` | Show/hide fields | `SHOW`, `HIDE` |
 | `REQUIREMENT` | Make fields required | `REQUIRE`, `OPTIONAL` |
-| `VALIDATION` | Validate field values | `VALIDATE` |
+| `VALIDATION` | Validate field values | `VALIDATE`, `MAKE_NON_EDITABLE` |
 | `CALCULATION` | Calculate field values | `CALCULATE` |
 | `OPTION_FILTER` | Filter select options | `FILTER_OPTIONS` |
 | `DYNAMIC_RULE` | Dynamic behavior based on option properties | `REQUIRE`, `SHOW`, `HIDE` |
@@ -276,18 +310,146 @@ Dynamic rules adapt behavior based on properties of selected options:
   "type": "DYNAMIC_RULE",
   "description": "Exception with vitals requirement triggers vital sign collection",
   "condition": {
-    "field": "exceptions",
+    "field": "selectedException",
     "operator": "ANY_VALUE"
   },
   "action": {
     "type": "REQUIRE",
-    "target": "heartRate",
     "property": "vitalsRequired",
-    "requirementType": "VITALS",
-    "targetFields": ["heartRate", "bps", "bpd", "temp"]
+    "targetFields": ["vitals.heartRate", "vitals.bps", "vitals.bpd", "vitals.temp"]
   }
 }
 ```
+
+### Dynamic Visibility with Property Mappings
+
+Show fields based on dynamic array values:
+
+```json
+{
+  "id": "vitalVisibility",
+  "type": "DYNAMIC_RULE",
+  "description": "Show vitals based on medication requirements",
+  "condition": {
+    "field": "dynamicValues.whatVitals",
+    "operator": "CONTAINS"
+  },
+  "action": {
+    "type": "SHOW",
+    "property": "whatVitals",
+    "propertyMappings": [
+      {
+        "value": "BP",
+        "targetFields": ["vitals.bps", "vitals.bpd"]
+      },
+      {
+        "value": "HR",
+        "targetFields": ["vitals.heartRate"]
+      },
+      {
+        "value": "GLUCO",
+        "targetFields": ["vitals.glucose"]
+      }
+    ]
+  }
+}
+```
+
+## Calculated Fields
+
+### Overview
+
+Calculated fields provide read-only values computed from other fields or dynamic data. They use the `CALCULATED` field type and support various calculation methods.
+
+### Calculation Types
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| `RANGE_LOOKUP` | Map input value to ranges | Sliding scale dosing |
+| `FORMULA` | Mathematical expression | Sum, multiply fields |
+| `VALUE_LOOKUP` | Direct value mapping | Status translations |
+| `CONDITIONAL` | If-then-else logic | Complex business rules |
+
+### Range Lookup (Sliding Scale)
+
+Most commonly used for medication sliding scales:
+
+```json
+{
+  "type": "RANGE_LOOKUP",
+  "rangeLookup": {
+    "inputField": "vitals.glucose",
+    "ranges": [0, 82, 167, 255, 333],
+    "values": [2, 3, 4, 5],
+    "defaultValue": "No dose recommended"
+  }
+}
+```
+
+**Logic:** If glucose is 0-81 → 2 units, 82-166 → 3 units, etc.
+
+### Formula Calculations
+
+```json
+{
+  "type": "FORMULA",
+  "formula": {
+    "formula": "weight * dosage * 0.5",
+    "inputFields": ["weight", "dosage"]
+  }
+}
+```
+
+### Value Lookup
+
+```json
+{
+  "type": "VALUE_LOOKUP",
+  "valueLookup": {
+    "inputField": "status",
+    "mappings": {
+      "A": "Active",
+      "I": "Inactive",
+      "P": "Pending"
+    },
+    "defaultValue": "Unknown"
+  }
+}
+```
+
+## Signature Fields
+
+### Behavior
+
+Signature fields have special behavior:
+
+1. **Before Signing:** Editable, shows signature capture interface
+2. **After Signing:** Non-editable, displays timestamp from payload
+3. **Form State:** When signature exists, related fields become non-editable
+
+### Implementation Example
+
+```json
+{
+  "id": "signedFieldsNonEditable",
+  "type": "VALIDATION",
+  "description": "Make fields non-editable when signature is present",
+  "condition": {
+    "field": "signature",
+    "operator": "IS_NOT_EMPTY"
+  },
+  "action": {
+    "type": "MAKE_NON_EDITABLE",
+    "targetFields": ["adminTime", "quantity", "notes", "vitals.glucose"]
+  }
+}
+```
+
+### Display Guidelines
+
+- **Unsigned:** Show signature capture widget
+- **Signed:** Display timestamp: `"Signed: 2025-06-09 14:30:22"`
+- **Label:** Use timestamp from API response, not signature blob
 
 ## Dynamic Options and Properties
 
@@ -447,5 +609,114 @@ The schema system supports versioning through the optional `version` field. When
 1. **Version Checking** - Validate schema version compatibility
 2. **Migration Support** - Handle schema upgrades gracefully
 3. **Backward Compatibility** - Support older schema versions when possible
+
+## Dynamic Values
+
+The schema system supports dynamic values that can affect form behavior at runtime. These values are provided in the `dynamicValues` property of the form data.
+
+### Dynamic Values Interface
+
+```typescript
+interface DynamicValues {
+  [key: string]: any;  // Allow any dynamic value to be stored
+}
+```
+
+### Form-Specific Dynamic Values
+
+Each form type can define its own interface extending the base DynamicValues interface. For example, the MAR form defines:
+
+```typescript
+interface MarDynamicValues extends DynamicValues {
+  whatVitals?: string[];        // Array of vitals that apply to this entry
+  slidingScale?: {              // Sliding scale configuration
+    start: number[];           // Range boundaries
+    doses: (number | string)[]; // Corresponding doses
+  };
+}
+```
+
+### Using Dynamic Values
+
+Dynamic values can be used to:
+- Control field visibility and requirements
+- Configure calculations
+- Modify form behavior based on runtime data
+
+Example of MAR-specific dynamic values:
+```json
+{
+  "dynamicValues": {
+    "whatVitals": ["bps", "bpd", "heartRate"],
+    "slidingScale": {
+      "start": [0, 82, 167, 255, 333],
+      "doses": [2, 3, 4, 5]
+    }
+  }
+}
+```
+
+## Signature Fields
+
+Signature fields have special behavior in the schema system:
+
+1. **Initial State**:
+   - Editable: true
+   - Required: false (unless specified otherwise)
+   - Type: SIGNATURE
+
+2. **After Signing**:
+   - Automatically becomes non-editable
+   - Displays the signature timestamp
+   - Cannot be modified or re-signed
+
+Example:
+```json
+{
+  "id": "signature",
+  "name": "Signature",
+  "type": "SIGNATURE",
+  "editable": true,
+  "required": false
+}
+```
+
+## Sliding Scale Implementation
+
+The sliding scale is a specialized calculation type that determines medication dosage based on input values (typically glucose readings).
+
+### Configuration
+
+```typescript
+interface SlidingScaleConfig {
+  inputField: string;            // Field providing the input value (e.g., "glucose")
+  ranges: number[];              // Range boundaries
+  values: (number | string)[];   // Corresponding doses
+  defaultValue?: any;            // Value if input doesn't match any range
+}
+```
+
+### Example
+
+```json
+{
+  "id": "slidingScaleDose",
+  "name": "Sliding Scale Dose",
+  "type": "CALCULATED",
+  "editable": false,
+  "required": false,
+  "calculation": {
+    "type": "RANGE_LOOKUP",
+    "rangeLookup": {
+      "inputField": "glucose",
+      "ranges": [0, 82, 167, 255, 333],
+      "values": [2, 3, 4, 5],
+      "defaultValue": "No dose recommended"
+    }
+  }
+}
+```
+
+The ranges and values can be dynamically configured through the `dynamicValues.slidingScale` property.
 
 This documentation provides the foundation for implementing a robust form framework that can consume and process any configuration of the form schema system.

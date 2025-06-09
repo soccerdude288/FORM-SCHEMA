@@ -49,6 +49,14 @@ export function getMarData(mar: MEFR_MAR) {
     postPain, prepSig, medRel, drugCategories } = mar.fields;
   const hasException = adminExRel.selected().length > 0;
   const selectedException = hasException ? adminExRel.selected().get(0).id().shortId() : null;
+  let slidingScale;
+  try {
+    slidingScale = JSON.parse(medRel.selected()[0].entry().formEntry().fields.ssJSON.valOpt().orElse("{}"));
+  } catch (e) {
+    console.error(`Problem with sliding scale for ${mar.id().shortId()}`);
+    console.error(`${medRel.selected()[0].entry().formEntry().fields.ssJSON.valOpt().orElse("{}")}`);
+    slidingScale = {};
+  }
   return {
     version: mar.version(),
     id: mar.id().shortId(),
@@ -66,7 +74,7 @@ export function getMarData(mar: MEFR_MAR) {
     dynamicValues: {
       exceptions: adminExRel.options().map(e => { return computeMarExceptionObject(e) }),
       whatVitals: whatVitals.selectedOptions().map(o => o.exportValue()),
-      slidingScale: JSON.parse(medRel.selected()[0].entry().formEntry().fields.ssJSON.val())
+      slidingScale
     },
     vitals: {
       bp: bp.val(),

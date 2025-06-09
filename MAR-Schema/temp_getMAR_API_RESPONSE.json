@@ -45,7 +45,7 @@
                 }
             ],
             "whatVitals": [],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -108,7 +108,7 @@
                 }
             ],
             "whatVitals": [],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -171,7 +171,7 @@
                 }
             ],
             "whatVitals": [],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -234,7 +234,7 @@
                 }
             ],
             "whatVitals": [],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -297,7 +297,7 @@
                 }
             ],
             "whatVitals": [],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -368,7 +368,21 @@
                 "WEIGHT",
                 "O2SATS"
             ],
-            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+            "slidingScale": {
+                "start": [
+                    0,
+                    82,
+                    167,
+                    255,
+                    333
+                ],
+                "doses": [
+                    2,
+                    3,
+                    4,
+                    5
+                ]
+            }
         },
         "vitals": {
             "bp": "",
@@ -439,7 +453,21 @@
                 "WEIGHT",
                 "O2SATS"
             ],
-            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+            "slidingScale": {
+                "start": [
+                    0,
+                    82,
+                    167,
+                    255,
+                    333
+                ],
+                "doses": [
+                    2,
+                    3,
+                    4,
+                    5
+                ]
+            }
         },
         "vitals": {
             "bp": "",
@@ -510,7 +538,21 @@
                 "WEIGHT",
                 "O2SATS"
             ],
-            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+            "slidingScale": {
+                "start": [
+                    0,
+                    82,
+                    167,
+                    255,
+                    333
+                ],
+                "doses": [
+                    2,
+                    3,
+                    4,
+                    5
+                ]
+            }
         },
         "vitals": {
             "bp": "",
@@ -581,7 +623,21 @@
                 "WEIGHT",
                 "O2SATS"
             ],
-            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+            "slidingScale": {
+                "start": [
+                    0,
+                    82,
+                    167,
+                    255,
+                    333
+                ],
+                "doses": [
+                    2,
+                    3,
+                    4,
+                    5
+                ]
+            }
         },
         "vitals": {
             "bp": "",
@@ -652,7 +708,21 @@
                 "WEIGHT",
                 "O2SATS"
             ],
-            "slidingScale": "{\"start\":[0,82,167,255,333],\"doses\":[2,3,4,5]}"
+            "slidingScale": {
+                "start": [
+                    0,
+                    82,
+                    167,
+                    255,
+                    333
+                ],
+                "doses": [
+                    2,
+                    3,
+                    4,
+                    5
+                ]
+            }
         },
         "vitals": {
             "bp": "",
@@ -719,7 +789,7 @@
             "whatVitals": [
                 "HR"
             ],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -786,7 +856,7 @@
             "whatVitals": [
                 "HR"
             ],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
@@ -853,7 +923,7 @@
             "whatVitals": [
                 "HR"
             ],
-            "slidingScale": ""
+            "slidingScale": {}
         },
         "vitals": {
             "bp": "",
