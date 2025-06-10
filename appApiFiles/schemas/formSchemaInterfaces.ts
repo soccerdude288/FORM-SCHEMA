@@ -201,11 +201,14 @@ export interface CalculationConfig {
  */
 export interface Action {
   type: ActionType;              // What kind of action
-  target?: string;               // Field ID this action affects
   value?: any;                   // Optional value for calculations/validations
   requirementType?: RequirementType; // For REQUIRE actions, the type of requirement
   visibilityType?: VisibilityType;  // For SHOW/HIDE actions, the type of visibility
-  targetFields?: string[];       // For group actions, the list of affected fields
+  
+  // Target specification - exactly one of these should be used
+  targetFields?: string[];       // List of field IDs to affect (can be single or multiple)
+  targetTags?: string[];         // List of tags to target (affects all fields with these tags)
+  
   sourceOption?: string;         // For option-based rules, the option value that triggers this
   property?: string;             // For dynamic rules, the property on the option that controls this
   dynamicVisibility?: boolean;   // For dynamic visibility rules
@@ -258,10 +261,12 @@ export interface Field {
   // Validation
   validation?: Validation;       // Validation rules
 
-  // Dynamic behavior
-  dynamicField?: boolean;        // Whether this field's behavior is controlled by dynamicValues
-  dynamicMapping?: {             // How this field maps to dynamic values
-    source: string;              // Source property in dynamicValues
+  // Field grouping and behavior
+  tags?: string[];              // Tags for grouping fields (e.g., ['vitals', 'post-signature-readonly'])
+
+  // Payload mapping
+  payloadMapping?: {
+    source: string;              // Path in payload to get value from (e.g., "slidingScale.start")
     transform?: (value: any) => any; // Optional transform function
   };
 }
@@ -278,7 +283,7 @@ export interface Rule {
 }
 
 /**
- * Form schema with support for dynamic values
+ * Form schema
  */
 export interface FormSchema {
   name: string;                  // Form name
@@ -286,5 +291,4 @@ export interface FormSchema {
   fields: Field[];               // List of fields in form
   rules: Rule[];                 // List of business rules
   version?: string;              // Optional schema version
-  dynamicValues?: DynamicValues; // Optional dynamic values that affect form behavior
 }

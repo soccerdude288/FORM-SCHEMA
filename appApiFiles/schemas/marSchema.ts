@@ -55,7 +55,8 @@ export function getMarSchema(): FormSchema {
         type: FieldType.SIGNATURE,
         editable: true,
         required: false,
-        visible: true
+        visible: true,
+        tags: ["post-signature-readonly"]
       },
       {
         id: "selectedException",
@@ -104,10 +105,7 @@ export function getMarSchema(): FormSchema {
           max: 300
         },
         visible: false,
-        dynamicField: true,
-        dynamicMapping: {
-          source: "whatVitals"
-        }
+        tags: ["vitals"]
       },
       {
         id: "bpd",
@@ -120,10 +118,7 @@ export function getMarSchema(): FormSchema {
           max: 200
         },
         visible: false,
-        dynamicField: true,
-        dynamicMapping: {
-          source: "whatVitals"
-        }
+        tags: ["vitals"]
       },
       {
         id: "heartRate",
@@ -135,7 +130,8 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 300
         },
-        visible: false
+        visible: false,
+        tags: ["vitals"]
       },
       {
         id: "temp",
@@ -147,7 +143,8 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 120
         },
-        visible: false
+        visible: false,
+        tags: ["vitals"]
       },
       {
         id: "glucose",
@@ -159,7 +156,8 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 1000
         },
-        visible: false
+        visible: false,
+        tags: ["vitals"]
       },
       {
         id: "respRate",
@@ -171,7 +169,8 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 100
         },
-        visible: false
+        visible: false,
+        tags: ["vitals"]
       },
       {
         id: "weight",
@@ -183,7 +182,8 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 1000
         },
-        visible: false
+        visible: false,
+        tags: ["vitals"]
       },
       {
         id: "oxygen",
@@ -195,7 +195,8 @@ export function getMarSchema(): FormSchema {
           min: 0,
           max: 100
         },
-        visible: false
+        visible: false,
+        tags: ["vitals"]
       },
       
       // Pain assessment fields
@@ -229,7 +230,8 @@ export function getMarSchema(): FormSchema {
         type: FieldType.SIGNATURE,
         editable: true,
         required: false,
-        visible: false
+        visible: false,
+        tags: ["post-signature-readonly"]
       },
       {
         id: "prepSig",
@@ -237,7 +239,8 @@ export function getMarSchema(): FormSchema {
         type: FieldType.SIGNATURE,
         editable: true,
         required: false,
-        visible: false
+        visible: false,
+        tags: ["post-signature-readonly"]
       },
       
       // Calculated field for sliding scale
@@ -248,8 +251,8 @@ export function getMarSchema(): FormSchema {
         editable: false,
         required: false,
         visible: false,
-        dynamicField: true,
-        dynamicMapping: {
+        tags: ["calculated"],
+        payloadMapping: {
           source: "slidingScale",
           transform: (scale) => ({
             ranges: scale.start,
@@ -260,21 +263,22 @@ export function getMarSchema(): FormSchema {
           type: CalculationType.RANGE_LOOKUP,
           rangeLookup: {
             inputField: "glucose",
-            ranges: [],  // Will be populated from dynamicValues.slidingScale
-            values: [],  // Will be populated from dynamicValues.slidingScale
+            ranges: [],  // Will be populated from payload.slidingScale.start
+            values: [],  // Will be populated from payload.slidingScale.doses
             defaultValue: "No dose recommended"
           }
         }
       }
     ],
     rules: [
+      // Rule to show/hide vitals based on whatVitals in payload
       {
-        id: "vitalVisibility",
-        type: RuleType.DYNAMIC_RULE,
-        description: "Use the MAR configuration to define what vitals to allow edits on",
+        id: "show-vitals",
+        type: RuleType.VISIBILITY,
+        description: "Show vitals fields based on whatVitals in payload",
         condition: {
           field: "dynamicValues.whatVitals",
-          operator: ConditionOperator.CONTAINS
+          operator: ConditionOperator.ANY_VALUE
         },
         action: {
           type: ActionType.SHOW,
@@ -311,103 +315,35 @@ export function getMarSchema(): FormSchema {
           ]
         }
       },
-      // Dynamic Rules for Exceptions with Vitals Requirements
+      // Rule to make vitals required based on exception
       {
-        id: "exceptionRequiresVitals",
-        type: RuleType.DYNAMIC_RULE,
-        description: "When an exception with vitalsRequired=true is selected, require vitals that are visible",
-        condition: {
-          field: "selectedException", 
-          operator: ConditionOperator.ANY_VALUE
-        },
-        action: {
-          type: ActionType.REQUIRE,
-          property: "vitalsRequired",
-          targetFields: ["bps", "bpd", "heartRate", "respRate", "temp", "glucose", "weight", "oxygen"]
-        }
-      },
-      
-      // Dynamic Rule for Notes Requirement
-      {
-        id: "exceptionRequiresNotes",
-        type: RuleType.DYNAMIC_RULE,
-        description: "When an exception with noteRequired=true is selected, require notes",
+        id: "require-vitals",
+        type: RuleType.REQUIREMENT,
+        description: "Make vitals required based on exception",
         condition: {
           field: "selectedException",
           operator: ConditionOperator.ANY_VALUE
         },
         action: {
           type: ActionType.REQUIRE,
-          target: "notes",
-          property: "noteRequired"
+          targetTags: ["vitals"],
+          requirementType: RequirementType.VITALS
         }
       },
-      
-      // Dynamic Rule for Medication Destruction
+      // Rule to make fields read-only after signing
       {
-        id: "exceptionRequiresMedDestruction",
-        type: RuleType.DYNAMIC_RULE,
-        description: "When an exception with medDestruction=true is selected, require medication destruction fields",
+        id: "post-signature-readonly",
+        type: RuleType.VALIDATION,
+        description: "Make fields read-only after signing",
         condition: {
-          field: "selectedException",
-          operator: ConditionOperator.ANY_VALUE
-        },
-        action: {
-          type: ActionType.REQUIRE,
-          target: "signature",
-          property: "medDestruction"
-        }
-      },
-      
-      // Dynamic Visibility Rule for Prepare Signature field
-      {
-        id: "exceptionShowsPrepSig",
-        type: RuleType.DYNAMIC_RULE,
-        description: "When an exception with medDestruction=true is selected, show prepare signature field",
-        condition: {
-          field: "selectedException",
-          operator: ConditionOperator.ANY_VALUE
-        },
-        action: {
-          type: ActionType.SHOW,
-          target: "prepSig",
-          property: "medDestruction",
-          visibilityType: VisibilityType.CONDITIONAL,
-          dynamicVisibility: true
-        }
-      },
-      
-      // Default hide rule for prepare signature field
-      {
-        id: "hidePrepSigInitially",
-        type: RuleType.VISIBILITY,
-        description: "Hide prepare signature by default",
-        condition: {
-          field: "adminTime",
-          operator: ConditionOperator.IS_EMPTY
-        },
-        action: {
-          type: ActionType.HIDE,
-          target: "prepSig",
-          visibilityType: VisibilityType.STANDARD
-        }
-      },
-      
-      // Dynamic Rule for Sliding Scale Visibility
-      {
-        id: "slidingScaleVisibility",
-        type: RuleType.DYNAMIC_RULE,
-        description: "Show sliding scale dose calculation when sliding scale data is present",
-        condition: {
-          field: "dynamicValues.slidingScale",
+          field: "signature",
           operator: ConditionOperator.IS_NOT_EMPTY
         },
         action: {
-          type: ActionType.SHOW,
-          target: "slidingScaleDose"
+          type: ActionType.MAKE_NON_EDITABLE,
+          targetTags: ["post-signature-readonly"]
         }
       },
-      
       // Rule for non-editable fields when signature is present
       {
         id: "signedFieldsNonEditable",
@@ -516,8 +452,7 @@ export function getMarSchema(): FormSchema {
           target: "effective"
         }
       }
-    ],
-    dynamicValues: {} as MarDynamicValues // Initialize with empty object, will be populated at runtime
+    ]
   };
 }
 

@@ -48,6 +48,7 @@ interface Field {
   options?: FieldOption[]; // For select fields
   inlineData?: boolean;    // Use dynamic data from parent
   validation?: Validation; // Field validation rules
+  tags?: string[];         // Tags for grouping and behavior
 }
 ```
 
@@ -451,51 +452,47 @@ Signature fields have special behavior:
 - **Signed:** Display timestamp: `"Signed: 2025-06-09 14:30:22"`
 - **Label:** Use timestamp from API response, not signature blob
 
-## Dynamic Options and Properties
+## Dynamic Values
 
-### Overview
+Dynamic values are provided in the form payload and can affect form behavior at runtime. These values are not part of the schema itself, but rather come from the specific entry's data.
 
-Fields with `inlineData: true` receive their options from runtime data. These options can have additional properties that drive dynamic rules.
-
-### Option Properties
-
-```typescript
-interface ExceptionOptionProperties {
-  vitalsRequired?: boolean;    // Triggers vital sign requirements
-  noteRequired?: boolean;      // Triggers note requirements
-  medDestruction?: boolean;    // Triggers medication destruction workflow
-}
-```
-
-### Implementation Pattern
-
-1. **Field Definition** - Mark field as `inlineData: true`
-2. **Dynamic Rule** - Create rule with `type: "DYNAMIC_RULE"`
-3. **Property Checking** - Use `action.property` to specify which option property to check
-4. **Conditional Behavior** - Rule triggers when selected option has `property: true`
-
-### Example Data Structure
-
+Example of MAR payload with dynamic values:
 ```json
 {
-  "exceptions": [
-    {
-      "name": "Patient Refused",
-      "value": "refused",
-      "vitalsRequired": false,
-      "noteRequired": true,
-      "medDestruction": false
-    },
-    {
-      "name": "Medication Error",
-      "value": "med_error",
-      "vitalsRequired": true,
-      "noteRequired": true,
-      "medDestruction": true
-    }
-  ]
+  "whatVitals": ["bps", "bpd", "heartRate"],
+  "slidingScale": {
+    "start": [0, 82, 167, 255, 333],
+    "doses": [2, 3, 4, 5]
+  }
 }
 ```
+
+The schema system uses these values to:
+- Control which tagged fields are visible/required
+- Configure calculations
+- Modify form behavior based on runtime data
+
+## Field Tags
+
+Fields can be tagged to group them for common behaviors. Tags are used to:
+- Group related fields (e.g., all vitals fields)
+- Apply common behaviors (e.g., fields that become read-only after signing)
+- Identify calculated fields
+
+Example:
+```json
+{
+  "id": "bps",
+  "name": "Blood Pressure Systolic",
+  "type": "NUMBER",
+  "tags": ["vitals"]
+}
+```
+
+Common tag patterns:
+- `vitals`: Fields that are part of vital signs
+- `post-signature-readonly`: Fields that become read-only after signing
+- `calculated`: Fields with calculated values
 
 ## Implementation Guidelines
 
@@ -610,52 +607,6 @@ The schema system supports versioning through the optional `version` field. When
 2. **Migration Support** - Handle schema upgrades gracefully
 3. **Backward Compatibility** - Support older schema versions when possible
 
-## Dynamic Values
-
-The schema system supports dynamic values that can affect form behavior at runtime. These values are provided in the `dynamicValues` property of the form data.
-
-### Dynamic Values Interface
-
-```typescript
-interface DynamicValues {
-  [key: string]: any;  // Allow any dynamic value to be stored
-}
-```
-
-### Form-Specific Dynamic Values
-
-Each form type can define its own interface extending the base DynamicValues interface. For example, the MAR form defines:
-
-```typescript
-interface MarDynamicValues extends DynamicValues {
-  whatVitals?: string[];        // Array of vitals that apply to this entry
-  slidingScale?: {              // Sliding scale configuration
-    start: number[];           // Range boundaries
-    doses: (number | string)[]; // Corresponding doses
-  };
-}
-```
-
-### Using Dynamic Values
-
-Dynamic values can be used to:
-- Control field visibility and requirements
-- Configure calculations
-- Modify form behavior based on runtime data
-
-Example of MAR-specific dynamic values:
-```json
-{
-  "dynamicValues": {
-    "whatVitals": ["bps", "bpd", "heartRate"],
-    "slidingScale": {
-      "start": [0, 82, 167, 255, 333],
-      "doses": [2, 3, 4, 5]
-    }
-  }
-}
-```
-
 ## Signature Fields
 
 Signature fields have special behavior in the schema system:
@@ -718,5 +669,174 @@ interface SlidingScaleConfig {
 ```
 
 The ranges and values can be dynamically configured through the `dynamicValues.slidingScale` property.
+
+## Payload Mapping
+
+The schema system expects certain properties in the form payload to control dynamic behavior. These properties are not part of the schema itself but are used by the form implementation.
+
+### Field to Payload Mapping
+
+Fields can specify where to get their values from the payload using the `payloadMapping` property:
+
+```typescript
+interface PayloadMapping {
+  source: string;              // Path in payload to get value from
+  transform?: (value: any) => any; // Optional transform function
+}
+```
+
+Example for sliding scale:
+```json
+{
+  "id": "slidingScaleDose",
+  "type": "CALCULATED",
+  "payloadMapping": {
+    "source": "slidingScale",
+    "transform": (scale) => ({
+      "ranges": scale.start,
+      "values": scale.doses
+    })
+  },
+  "calculation": {
+    "type": "RANGE_LOOKUP",
+    "rangeLookup": {
+      "inputField": "glucose",
+      "ranges": [],  // Will be populated from payload.slidingScale.start
+      "values": []   // Will be populated from payload.slidingScale.doses
+    }
+  }
+}
+```
+
+### Vitals Mapping
+
+The schema defines how vitals values from the payload map to specific fields:
+
+```json
+{
+  "id": "show-vitals",
+  "type": "VISIBILITY",
+  "action": {
+    "type": "SHOW",
+    "property": "whatVitals",
+    "propertyMappings": [
+      {
+        "value": "BP",
+        "targetFields": ["bps", "bpd"]
+      },
+      {
+        "value": "HR",
+        "targetFields": ["heartRate"]
+      }
+      // ... other vitals mappings
+    ]
+  }
+}
+```
+
+The implementation is responsible for:
+1. Reading the payload properties
+2. Applying the mappings to show/hide appropriate fields
+3. Transforming values as needed using the provided transform functions
+
+## Action Targeting
+
+Actions can target fields in two ways:
+
+1. **Specific Fields** - Using `targetFields` to list field IDs (can be single or multiple):
+```json
+{
+  "action": {
+    "type": "SHOW",
+    "targetFields": ["field1"]  // Single field
+  }
+}
+```
+```json
+{
+  "action": {
+    "type": "SHOW",
+    "targetFields": ["field1", "field2"]  // Multiple fields
+  }
+}
+```
+
+2. **Tagged Fields** - Using `targetTags` to affect all fields with specific tags:
+```json
+{
+  "action": {
+    "type": "REQUIRE",
+    "targetTags": ["vitals"]
+  }
+}
+```
+
+The `targetFields` and `targetTags` properties are mutually exclusive - an action should use exactly one of them.
+
+### Example: Vitals Rules
+
+The MAR form uses both targeting approaches:
+
+1. **Specific Field Mapping** - Maps vitals codes to specific fields:
+```json
+{
+  "action": {
+    "type": "SHOW",
+    "property": "whatVitals",
+    "propertyMappings": [
+      {
+        "value": "BP",
+        "targetFields": ["bps", "bpd"]
+      }
+    ]
+  }
+}
+```
+
+2. **Tag-based Requirements** - Makes all vitals fields required:
+```json
+{
+  "action": {
+    "type": "REQUIRE",
+    "targetTags": ["vitals"],
+    "requirementType": "VITALS"
+  }
+}
+```
+
+## Payload Properties
+
+Payload properties can be referenced in both conditions and actions:
+
+1. **In Conditions**: Use the full path to the payload property:
+```json
+{
+  "condition": {
+    "field": "dynamicValues.whatVitals",
+    "operator": "ANY_VALUE"
+  }
+}
+```
+
+2. **In Actions**: Use the property name that maps to the payload path:
+```json
+{
+  "action": {
+    "type": "SHOW",
+    "property": "whatVitals",  // Maps to dynamicValues.whatVitals in payload
+    "propertyMappings": [
+      {
+        "value": "BP",
+        "targetFields": ["bps", "bpd"]
+      }
+    ]
+  }
+}
+```
+
+The implementation is responsible for:
+1. Reading the payload property at the specified path
+2. Applying the mappings to show/hide appropriate fields
+3. Transforming values as needed using the provided transform functions
 
 This documentation provides the foundation for implementing a robust form framework that can consume and process any configuration of the form schema system.

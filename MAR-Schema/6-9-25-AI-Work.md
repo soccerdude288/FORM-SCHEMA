@@ -1,5 +1,24 @@
 This file is a living document. The older information is likely outdated, but may provide additional context.
 
+
+## 2:45pm
+../appApiFiles/* - This whole directory contains the most up to date typescript I'm looking to change
+manual-review.md - This contains my manually written description of the problem and what I'm trying to solve
+conditionalrequired.bluestep - This contains some of the business rules I'm trying to represent
+mardetail.bluestep - This contains more business rules I'm trying to represent
+marformgraphqlresults.json - This is a list of fields on the MAR form to reference. Not all of them are required here.
+temp_outputv3.json - These are the current results that are produced from the payload function
+temp_getMAR_API_RESPONSE.json - The results from a GET request to the MAR API
+../contextv3.md - Context on BlueStep that may be applicable
+5-13-25-AI-Notes.md - Claude generated notes from the previous session. These are likely out to date as I've made manual modifications since.
+6-9-25-AI-Notes.md - Claude generated notes from earlier today. I'd like to keep these updated.
+
+### Questions
+* Why do BPD and BPS have dynamicField and dynamicMapping when the other vitals don't?
+* Would it make sense creating an array of tags to apply to fields that will group that field into an action? For example, tag all vitals, tag all fields that should be read-only after signed, etc.
+* I don't know why we are including `dynamicValues` on the schema itself. I want it to be documented and implied that dynamic values come from the entries specific payload. I don't think there is any reason to have that in the schema.
+* I'm still confused why references to the vitals field in the context of the schema are preferenced with `vitals.`. That should only be used to tell the implementor where to get the value from in the GET payload. References to the field in the schema should just use the field id I'd think.
+
 ## 1:30pm
 ### Context
 ../appApiFiles/* - This whole directory contains the most up to date typescript I'm looking to change
